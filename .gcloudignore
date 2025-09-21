@@ -7,6 +7,11 @@
 .svn
 .gitignore
 
+# Ignore configuration files
+.*ignore
+.eslintrc.*
+.prettierrc.*
+
 # Dependencies
 node_modules/
 .venv/

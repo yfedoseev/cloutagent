@@ -3,6 +3,11 @@
 .gitignore
 .gitattributes
 
+# Ignore configuration files
+.*ignore
+.eslintrc.*
+.prettierrc.*
+
 # Docker
 Dockerfile*
 docker-compose*

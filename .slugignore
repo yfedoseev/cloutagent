@@ -6,6 +6,11 @@
 .gitignore
 .gitattributes
 
+# Ignore configuration files
+.*ignore
+.eslintrc.*
+.prettierrc.*
+
 # Documentation
 README.md
 CONTRIBUTING.md

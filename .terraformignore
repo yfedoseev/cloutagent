@@ -8,6 +8,11 @@
 .gitignore
 .gitattributes
 
+# Ignore configuration files
+.*ignore
+.eslintrc.*
+.prettierrc.*
+
 # Terraform files
 *.tfstate
 *.tfstate.*

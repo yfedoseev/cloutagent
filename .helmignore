@@ -7,6 +7,11 @@
 .svn/
 .gitignore
 
+# Ignore configuration files
+.*ignore
+.eslintrc.*
+.prettierrc.*
+
 # OS files
 .DS_Store
 ._*

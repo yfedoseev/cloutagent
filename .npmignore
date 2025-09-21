@@ -8,6 +8,11 @@
 .gitignore
 .gitattributes
 
+# Ignore configuration files (not needed in published package)
+.*ignore
+.eslintrc.*
+.prettierrc.*
+
 # Development dependencies
 node_modules/
 npm-debug.log*
