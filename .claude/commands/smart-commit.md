@@ -48,9 +48,11 @@ Intelligently analyze changed files, group them into logical commits, and push t
    Follow complete git synchronization process:
 
    ### Pre-commit Synchronization
+   - **ALWAYS** execute these steps before committing:
    - `git fetch origin` - Fetch all remote references
-   - `git pull origin <current-branch>` - Pull latest changes from current branch
-   - `git merge origin/main` - Merge latest changes from main branch
+   - Check if current branch exists on remote with `git branch -r`
+   - If branch exists: `git pull origin <current-branch>` - Pull latest changes
+   - If on feature branch: `git merge origin/main` - Merge latest main changes
    - Resolve any merge conflicts if they arise
 
    ### Commit Process
@@ -58,9 +60,12 @@ Intelligently analyze changed files, group them into logical commits, and push t
    - `git commit -m "<message>"` - Commit with semantic message
    - Repeat for each logical group
 
-   ### Post-commit Push
-   - `git push origin <current-branch>` - Push all commits to remote
+   ### Post-commit Push (MANDATORY)
+   - **ALWAYS** push commits after successful commit:
+   - If branch doesn't exist on remote: `git push -u origin <current-branch>` (creates and tracks)
+   - If branch exists on remote: `git push origin <current-branch>`
    - Verify successful push and remote synchronization
+   - Report final branch status with `git status -uno`
 
 6. **Validate and Report**
    - Confirm all changes have been committed
@@ -87,9 +92,10 @@ Intelligently analyze changed files, group them into logical commits, and push t
 - **Atomic Commits**: Each commit represents a complete, independent change
 - **Logical Grouping**: Files are grouped by purpose, not file type
 - **Semantic Messages**: Commit messages explain the change, not just list files
-- **Remote Sync**: Always sync with remote before and after commits
+- **MANDATORY Remote Sync**: Always fetch, pull, and push - never skip remote operations
+- **Auto-Branch Creation**: Automatically create and track new branches on remote
 - **Conflict Prevention**: Merge remote changes before pushing
-- **Complete Workflow**: Handle entire git workflow automatically
+- **Complete Workflow**: Handle entire git workflow from fetch to push automatically
 
 ## Output Expectations
 
