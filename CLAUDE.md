@@ -93,3 +93,119 @@ safe_user_id = hashlib.sha256(f"{user_id}{salt}".encode()).hexdigest()[:12]
 - Run `make check` before finishing tasks
 - Check package.json/Makefile for available commands
 - Follow existing naming conventions
+
+## Agent-Driven Development
+
+### Aggressive Agent Utilization
+- **Default Approach**: Pass tasks to specialized agents whenever possible
+- **Parallel Execution**: Run 4-10 agents simultaneously when tasks affect different files
+- **Complete Context**: Provide agents with full context needed for autonomous execution
+- **Specialization**: Use specific agents (frontend-engineer, backend-engineer, ml-engineer, etc.)
+
+### Agent Coordination System
+
+#### Inter-Agent Communication
+- **`.claude/agents-chat.md`** - Communication hub for agent coordination
+  - Agents post status updates, blockers, and questions
+  - Share findings and insights between agents
+  - Coordinate on overlapping work and dependencies
+  - Main Claude monitors and facilitates collaboration
+
+#### Change Tracking
+- **`.claude/agent-change-log.md`** - Comprehensive change documentation
+  - Each agent logs all modifications made
+  - Include rationale for changes and impact assessment
+  - Track file modifications, new features, and bug fixes
+  - Maintain chronological record of development progress
+
+### Agent Task Distribution Strategy
+
+#### Parallel Task Execution
+```bash
+# Example: Launching multiple agents in parallel
+/task "Implement user authentication API endpoints" --agent backend-engineer
+/task "Create login and registration UI components" --agent frontend-engineer
+/task "Write comprehensive test suite for auth flow" --agent software-engineer-test
+/task "Design database schema for user management" --agent database-engineer
+/task "Configure deployment pipeline for auth service" --agent infrastructure-engineer
+```
+
+#### Task Handoff Protocols
+- **Context Documentation**: Each agent documents work for seamless handoffs
+- **Dependency Management**: Agents coordinate on shared interfaces and contracts
+- **Quality Gates**: Agents validate each other's work before integration
+- **Rollback Strategy**: Maintain change logs for easy reversion if needed
+
+### Agent Selection Guidelines
+
+#### Task-to-Agent Mapping
+- **UI/UX Development** → frontend-engineer, ui-ux-designer
+- **API/Backend Logic** → backend-engineer, software-engineer-test
+- **Data & Analytics** → data-engineer, ml-engineer
+- **Infrastructure** → infrastructure-engineer, cloud-architect
+- **Documentation** → prompt-engineer, project-manager
+- **Research & Analysis** → Use custom research commands (/deep-research, /batch-research)
+
+#### Optimal Agent Count
+- **Simple Tasks**: 2-3 agents (implementation + testing + review)
+- **Complex Features**: 4-6 agents (frontend + backend + data + testing + infrastructure)
+- **Large Projects**: 6-10 agents (full specialization across domains)
+- **Research Projects**: Multiple research cycles with agent synthesis
+
+### Communication Protocols
+
+#### Status Updates in `.claude/agents-chat.md`
+```markdown
+## Agent Status Updates
+
+### [Timestamp] - Backend Engineer
+**Task**: Implementing user authentication API
+**Status**: 70% complete
+**Blockers**: Need database schema from database-engineer
+**Next**: Will implement JWT token validation once schema is ready
+
+### [Timestamp] - Database Engineer
+**Task**: User management database schema
+**Status**: Complete
+**Output**: Schema created in migrations/001_user_auth.sql
+**Next**: Backend engineer can proceed with API implementation
+```
+
+#### Change Documentation in `.claude/agent-change-log.md`
+```markdown
+## Agent Change Log
+
+### [Timestamp] - Frontend Engineer
+**Files Modified**:
+- src/components/LoginForm.tsx (new)
+- src/components/RegisterForm.tsx (new)
+- src/hooks/useAuth.ts (new)
+
+**Changes Made**:
+- Implemented responsive login form with validation
+- Added registration form with password strength requirements
+- Created custom hook for authentication state management
+
+**Impact**: Frontend auth flow complete, ready for backend integration
+**Testing**: Unit tests included, integration tests pending backend completion
+```
+
+### Best Practices
+
+#### Agent Task Design
+- **Atomic Tasks**: Each agent gets complete, self-contained work
+- **Clear Interfaces**: Define explicit contracts between agent work
+- **Full Context**: Provide complete background, requirements, and constraints
+- **Success Criteria**: Specify exact deliverables and quality standards
+
+#### Coordination Efficiency
+- **Pre-Task Planning**: Identify dependencies before launching agents
+- **Regular Check-ins**: Monitor agent progress through communication files
+- **Conflict Resolution**: Address file conflicts and integration issues promptly
+- **Knowledge Synthesis**: Combine agent outputs into coherent final product
+
+#### Quality Assurance
+- **Cross-Agent Review**: Agents validate each other's work
+- **Integration Testing**: Verify agent outputs work together
+- **Documentation Standards**: Maintain consistent documentation across agents
+- **Rollback Readiness**: Always maintain ability to revert agent changes
