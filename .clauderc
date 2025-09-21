@@ -1,0 +1,12 @@
+# Claude Code Configuration
+# This file configures hooks that run automatically when Claude makes changes
+
+[hooks]
+# Run formatting after Claude makes any file changes
+post-edit = "make format"
+
+# Run linting and tests after writing new files (catch breaks immediately)
+post-write = "make quick-check"
+
+# Full quality check before commits (hard testing - lint, typecheck, test)
+pre-commit = "make check"
