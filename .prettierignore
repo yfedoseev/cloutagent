@@ -1,0 +1,52 @@
+# Prettier Ignore File
+# Files and directories to exclude from Prettier formatting
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+build/
+dist/
+out/
+lib/
+coverage/
+.nyc_output/
+
+# Generated files
+*.min.js
+*.min.css
+*.bundle.*
+*.generated.*
+package-lock.json
+yarn.lock
+
+# Third-party libraries
+public/vendor/
+assets/vendor/
+static/vendor/
+
+# Legacy code
+legacy/
+external/
+third-party/
+
+# Documentation that should maintain formatting
+CHANGELOG.md
+HISTORY.md
+
+# Configuration files that have specific formatting
+.env
+.env.*
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# OS files
+.DS_Store
+._*
+
+# IDE files
+.vscode/
+.idea/

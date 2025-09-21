@@ -1,0 +1,89 @@
+# VS Code Extension Ignore File
+# Files and directories to exclude when building VS Code extensions
+
+# Source control
+.git/**
+.hg/**
+.svn/**
+.gitignore
+.gitattributes
+
+# Dependencies
+node_modules/**
+.vscode-test/**
+.vscode-test-web/**
+
+# Build outputs
+out/**
+dist/**
+lib/**
+build/**
+
+# Development files
+src/**
+test/**
+tests/**
+*.test.*
+*.spec.*
+
+# Documentation
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+docs/**
+examples/**
+
+# Configuration files
+tsconfig.json
+webpack.config.js
+.eslintrc.*
+.prettierrc.*
+.babelrc.*
+jest.config.*
+
+# Environment files
+.env
+.env.*
+
+# OS files
+.DS_Store
+._*
+Thumbs.db
+
+# IDE files (other than VS Code)
+.idea/**
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/**
+
+# Coverage
+coverage/**
+.nyc_output/**
+
+# Cache
+.cache/**
+.parcel-cache/**
+
+# Temporary files
+*.tmp
+*.temp
+
+# Package manager files
+package-lock.json
+yarn.lock
+.yarn-integrity
+
+# CI/CD
+.github/**
+.gitlab-ci.yml
+.travis.yml
+
+# Development tools
+Dockerfile*
+docker-compose.*
+.dockerignore
+Makefile

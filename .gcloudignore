@@ -1,0 +1,84 @@
+# Google Cloud Ignore File
+# Files and directories to exclude from Google Cloud deployments
+
+# Version control
+.git
+.hg
+.svn
+.gitignore
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+vendor/
+
+# Build artifacts
+build/
+dist/
+out/
+target/
+*.o
+*.so
+*.exe
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+._*
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+*.key
+*.pem
+credentials/
+secrets/
+
+# Logs
+*.log
+logs/
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.*
+*.spec.*
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Development tools
+Dockerfile.dev
+docker-compose.dev.yml
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Temporary
+*.tmp
+*.temp
+
+# Local development
+.env.local
+.env.development

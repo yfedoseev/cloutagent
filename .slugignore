@@ -1,0 +1,90 @@
+# Heroku Slug Ignore File
+# Files and directories to exclude from Heroku slug compilation
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CONTRIBUTING.md
+LICENSE
+docs
+*.md
+
+# Development tools
+Dockerfile*
+docker-compose*
+.dockerignore
+Makefile
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+.circleci
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+._*
+Thumbs.db
+
+# Test files
+test
+tests
+__tests__
+*.test.*
+*.spec.*
+cypress
+
+# Development dependencies (Node.js will install only production deps)
+# Note: Don't ignore node_modules - Heroku needs to see it exists
+
+# Python virtual environments
+.venv
+venv
+
+# Build artifacts that aren't needed in production
+.cache
+.parcel-cache
+coverage
+.nyc_output
+
+# Environment files (Heroku uses config vars)
+.env.local
+.env.development
+.env.test
+
+# Source maps (optional - keep if needed for error tracking)
+*.map
+
+# Development configuration
+.eslintrc.*
+.prettierrc.*
+jest.config.*
+webpack.config.dev.*
+rollup.config.dev.*
+
+# Logs (Heroku has its own logging)
+*.log
+logs
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+
+# Large files that aren't needed for the app
+examples
+demo
+benchmarks

@@ -1,0 +1,57 @@
+# ESLint Ignore File
+# Files and directories to exclude from ESLint analysis
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+build/
+dist/
+out/
+lib/
+coverage/
+.nyc_output/
+
+# Generated files
+*.min.js
+*.bundle.js
+*.generated.*
+
+# Configuration files
+webpack.config.js
+rollup.config.js
+vite.config.js
+babel.config.js
+
+# Third-party libraries
+public/vendor/
+assets/vendor/
+static/vendor/
+
+# Legacy or external code
+legacy/
+external/
+third-party/
+
+# Documentation
+docs/
+
+# Environment files
+.env
+.env.*
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# OS files
+.DS_Store
+._*
+
+# IDE files
+.vscode/
+.idea/
+
+# Test coverage
+*.lcov

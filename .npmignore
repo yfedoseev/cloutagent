@@ -1,0 +1,85 @@
+# NPM Ignore File
+# Files and directories to exclude from npm package
+
+# Source control
+.git/
+.hg/
+.svn/
+.gitignore
+.gitattributes
+
+# Development dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+.yarn-integrity
+
+# Development tools and configs
+.eslintrc.*
+.prettierrc.*
+.babelrc.*
+webpack.config.*
+rollup.config.*
+vite.config.*
+tsconfig.json
+jest.config.*
+.nyc_output/
+coverage/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.*
+*.spec.*
+
+# Documentation source
+docs/
+*.md
+LICENSE
+CONTRIBUTING.md
+SECURITY.md
+
+# Build tools
+Makefile
+Dockerfile*
+docker-compose.*
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Development builds (keep production builds)
+src/
+examples/
+demo/

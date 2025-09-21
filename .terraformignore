@@ -1,0 +1,78 @@
+# Terraform Ignore File
+# Files and directories to exclude from Terraform operations
+
+# Version control
+.git/
+.hg/
+.svn/
+.gitignore
+.gitattributes
+
+# Terraform files
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+secrets.tf
+secrets.tfvars
+
+# OS files
+.DS_Store
+._*
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation
+README.md
+CONTRIBUTING.md
+LICENSE
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Local development
+.env
+.env.*
+local.tfvars
+dev.tfvars
+
+# Backup files
+*.bak
+*.backup

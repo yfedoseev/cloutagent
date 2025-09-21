@@ -1,0 +1,160 @@
+# Claude Code Ignore File
+# Files and directories to exclude from Claude Code context
+
+# Version control
+.git/
+.hg/
+.svn/
+
+# Dependencies and packages
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+target/
+vendor/
+Cargo.lock
+go.mod
+go.sum
+
+# Build outputs and distributions
+build/
+dist/
+out/
+*.o
+*.so
+*.dll
+*.exe
+*.dylib
+*.app
+*.dSYM/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+.nyc_output/
+
+# Environment and secrets
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# Large media files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.wma
+*.iso
+*.dmg
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z
+
+# Documentation that might be verbose
+CHANGELOG.md
+CHANGELOG.txt
+HISTORY.md
+HISTORY.txt
+
+# Test files (comment out if you want Claude to see tests)
+# test/
+# tests/
+# __tests__/
+# *.test.*
+# *.spec.*
+
+# Large data files
+*.csv
+*.json
+*.xml
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated or compiled documentation
+docs/_build/
+docs/build/
+site/
+_site/
+
+# Package manager files
+package-lock.json
+yarn.lock
+poetry.lock
+Pipfile.lock
+composer.lock
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage reports
+coverage/
+*.lcov
+htmlcov/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Research and documentation files that might be too large
+research-*.md
+prd-*.md
+batch-research-*.md
+
+# Claude Code specific
+.claude/logs/
+.claude/cache/
