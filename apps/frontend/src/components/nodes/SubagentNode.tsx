@@ -37,12 +37,16 @@ export const SubagentNode = memo(
       <div
         className={`
         relative
-        px-4 py-3 rounded-lg border-2 min-w-[220px] max-w-[300px]
-        ${selected ? 'border-purple-500 shadow-lg shadow-purple-500/50' : 'border-gray-700'}
-        bg-gradient-to-br from-purple-900 to-purple-800
+        px-4 py-3 min-w-[220px] max-w-[300px]
         transition-all duration-200
-        hover:shadow-xl
+        ${selected ? 'border-2' : 'border'}
       `}
+        style={{
+          borderRadius: '10px',
+          backgroundColor: 'var(--card-bg)',
+          borderColor: selected ? 'var(--accent-primary)' : 'var(--border-primary)',
+          boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+        }}
         role="article"
         aria-label={`Subagent node: ${data.name || 'Unnamed Subagent'}`}
       >
@@ -54,23 +58,37 @@ export const SubagentNode = memo(
         <Handle
           type="target"
           position={Position.Top}
-          className="w-3 h-3 !bg-purple-400"
+          style={{
+            width: '10px',
+            height: '10px',
+            backgroundColor: 'var(--node-subagent)',
+            border: '2px solid var(--card-bg)',
+          }}
           aria-label="Input connection"
         />
 
         {/* Header with icon and name */}
         <div className="flex items-center gap-2 mb-2">
-          <TypeIcon className="w-6 h-6 text-purple-300" aria-label={`${data.type || 'generic'} icon`} />
+          <div
+            className="w-8 h-8 rounded-md flex items-center justify-center"
+            style={{ backgroundColor: 'var(--node-subagent)', opacity: 0.1 }}
+          >
+            <TypeIcon className="w-5 h-5" style={{ color: 'var(--node-subagent)' }} aria-label={`${data.type || 'generic'} icon`} />
+          </div>
 
           <div className="flex-1">
-            <div className="font-semibold text-white text-sm">{data.name || 'Unnamed Subagent'}</div>
-            <div className="text-xs text-purple-200">{data.type}</div>
+            <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+              {data.name || 'Unnamed Subagent'}
+            </div>
+            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+              {data.type}
+            </div>
           </div>
 
           {/* Status indicator */}
           {data.status && (
             <div
-              className={`w-3 h-3 rounded-full ${statusColors[data.status]}`}
+              className={`w-2 h-2 rounded-full ${statusColors[data.status]}`}
               title={data.status}
               aria-label={`Status: ${data.status}`}
             />
@@ -79,7 +97,13 @@ export const SubagentNode = memo(
 
         {/* Description */}
         {data.description && (
-          <div className="mb-2 p-2 bg-purple-950/50 rounded text-xs text-purple-200">
+          <div
+            className="mb-2 p-2 rounded text-xs"
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-secondary)'
+            }}
+          >
             {data.description}
           </div>
         )}
@@ -87,11 +111,11 @@ export const SubagentNode = memo(
         {/* Execution time */}
         {data.executionTime !== undefined && (
           <div className="mb-2 flex items-center justify-between text-xs">
-            <span className="text-purple-300 inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
               <Clock className="w-3 h-3" />
               <span>Execution:</span>
             </span>
-            <span className="font-mono text-purple-100">
+            <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
               {formatDuration(data.executionTime)}
             </span>
           </div>
@@ -99,7 +123,13 @@ export const SubagentNode = memo(
 
         {/* Result or Error */}
         {data.result && !data.error && (
-          <div className="mt-2 p-2 bg-purple-950/50 rounded text-xs text-green-300 line-clamp-2">
+          <div
+            className="mt-2 p-2 rounded text-xs line-clamp-2"
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--success)'
+            }}
+          >
             <span className="inline-flex items-center gap-1">
               <Check className="w-3 h-3" />
               <span>{data.result}</span>
@@ -108,7 +138,13 @@ export const SubagentNode = memo(
         )}
 
         {data.error && (
-          <div className="mt-2 p-2 bg-red-950/50 rounded text-xs text-red-300 line-clamp-2">
+          <div
+            className="mt-2 p-2 rounded text-xs line-clamp-2"
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--error)'
+            }}
+          >
             <span className="inline-flex items-center gap-1">
               <XCircle className="w-3 h-3" />
               <span>{data.error}</span>
@@ -119,7 +155,12 @@ export const SubagentNode = memo(
         <Handle
           type="source"
           position={Position.Bottom}
-          className="w-3 h-3 !bg-purple-400"
+          style={{
+            width: '10px',
+            height: '10px',
+            backgroundColor: 'var(--node-subagent)',
+            border: '2px solid var(--card-bg)',
+          }}
           aria-label="Output connection"
         />
       </div>

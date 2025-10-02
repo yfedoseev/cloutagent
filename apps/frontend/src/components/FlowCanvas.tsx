@@ -10,8 +10,6 @@ import ReactFlow, {
   Panel,
   NodeTypes,
   ReactFlowInstance,
-  Handle,
-  Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useCanvasStore } from '../stores/canvas';

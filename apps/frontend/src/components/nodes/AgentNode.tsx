@@ -30,12 +30,16 @@ export const AgentNode = memo(
       <div
         className={`
         relative
-        px-4 py-3 rounded-lg border-2 min-w-[220px] max-w-[300px]
-        ${selected ? 'border-blue-500 shadow-lg shadow-blue-500/50' : 'border-gray-700'}
-        bg-gradient-to-br from-blue-900 to-blue-800
+        px-4 py-3 min-w-[220px] max-w-[300px]
         transition-all duration-200
-        hover:shadow-xl
+        ${selected ? 'border-2' : 'border'}
       `}
+        style={{
+          borderRadius: '10px',
+          backgroundColor: 'var(--card-bg)',
+          borderColor: selected ? 'var(--accent-primary)' : 'var(--border-primary)',
+          boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+        }}
         role="article"
         aria-label={`Agent node: ${data.name || 'Unnamed Agent'}`}
       >
@@ -47,25 +51,37 @@ export const AgentNode = memo(
         <Handle
           type="target"
           position={Position.Top}
-          className="w-3 h-3 !bg-blue-400"
+          style={{
+            width: '10px',
+            height: '10px',
+            backgroundColor: 'var(--accent-primary)',
+            border: '2px solid var(--card-bg)',
+          }}
           aria-label="Input connection"
         />
 
         {/* Header with icon and name */}
         <div className="flex items-center gap-2 mb-2">
-          <Bot className="w-6 h-6 text-blue-300" aria-label="Agent icon" />
+          <div
+            className="w-8 h-8 rounded-md flex items-center justify-center"
+            style={{ backgroundColor: 'var(--accent-primary)', opacity: 0.1 }}
+          >
+            <Bot className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} aria-label="Agent icon" />
+          </div>
 
           <div className="flex-1">
-            <div className="font-semibold text-white text-sm">
+            <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
               {data.name || 'Unnamed Agent'}
             </div>
-            <div className="text-xs text-blue-200">{data.model || 'No model'}</div>
+            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+              {data.model || 'No model'}
+            </div>
           </div>
 
           {/* Status indicator */}
           {data.status && (
             <div
-              className={`w-3 h-3 rounded-full ${statusColors[data.status]}`}
+              className={`w-2 h-2 rounded-full ${statusColors[data.status]}`}
               title={data.status}
               aria-label={`Status: ${data.status}`}
             />
@@ -74,18 +90,20 @@ export const AgentNode = memo(
 
         {/* Configuration info */}
         {(data.temperature !== undefined || data.maxTokens !== undefined) && (
-          <div className="space-y-1 text-xs text-blue-100 mb-2">
+          <div className="space-y-1 text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>
             {data.temperature !== undefined && (
               <div className="flex justify-between">
-                <span className="text-blue-300">Temperature:</span>
-                <span className="font-mono">{data.temperature}</span>
+                <span>Temperature:</span>
+                <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
+                  {data.temperature}
+                </span>
               </div>
             )}
 
             {data.maxTokens !== undefined && (
               <div className="flex justify-between">
-                <span className="text-blue-300">Max Tokens:</span>
-                <span className="font-mono">
+                <span>Max Tokens:</span>
+                <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
                   {data.maxTokens.toLocaleString()}
                 </span>
               </div>
@@ -95,18 +113,27 @@ export const AgentNode = memo(
 
         {/* System prompt preview (truncated) */}
         {data.systemPrompt && (
-          <div className="mb-2 p-2 bg-blue-950/50 rounded text-xs text-blue-200 line-clamp-2">
+          <div
+            className="mb-2 p-2 rounded text-xs line-clamp-2"
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-secondary)'
+            }}
+          >
             {data.systemPrompt}
           </div>
         )}
 
         {/* Execution stats */}
         {(data.tokenUsage || data.costUSD !== undefined) && (
-          <div className="pt-2 mt-2 border-t border-blue-700 space-y-1">
+          <div
+            className="pt-2 mt-2 space-y-1"
+            style={{ borderTop: '1px solid var(--border-primary)' }}
+          >
             {data.tokenUsage && (
               <div className="flex items-center justify-between text-xs">
-                <span className="text-blue-300">🪙 Tokens:</span>
-                <span className="font-mono text-blue-100">
+                <span style={{ color: 'var(--text-secondary)' }}>🪙 Tokens:</span>
+                <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
                   {totalTokens.toLocaleString()}
                 </span>
               </div>
@@ -114,8 +141,8 @@ export const AgentNode = memo(
 
             {data.costUSD !== undefined && (
               <div className="flex items-center justify-between text-xs">
-                <span className="text-blue-300">💰 Cost:</span>
-                <span className="font-mono text-green-300">
+                <span style={{ color: 'var(--text-secondary)' }}>💰 Cost:</span>
+                <span className="font-mono" style={{ color: 'var(--success)' }}>
                   ${data.costUSD.toFixed(4)}
                 </span>
               </div>
@@ -126,7 +153,12 @@ export const AgentNode = memo(
         <Handle
           type="source"
           position={Position.Bottom}
-          className="w-3 h-3 !bg-blue-400"
+          style={{
+            width: '10px',
+            height: '10px',
+            backgroundColor: 'var(--accent-primary)',
+            border: '2px solid var(--card-bg)',
+          }}
           aria-label="Output connection"
         />
       </div>

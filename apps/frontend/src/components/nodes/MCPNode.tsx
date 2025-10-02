@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
 import { Circle, Plug, AlertTriangle, Lock, Unlock } from 'lucide-react';
-import { statusColors } from './utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ValidationBadge } from './ValidationBadge';
 import type { ValidationError } from '@cloutagent/types';
@@ -28,12 +27,16 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
     <div
       className={`
         relative
-        px-4 py-3 rounded-lg border-2 min-w-[240px] max-w-[320px]
-        ${selected ? 'border-orange-500 shadow-lg shadow-orange-500/50' : 'border-gray-700'}
-        bg-gradient-to-br from-orange-900 to-orange-800
+        px-4 py-3 min-w-[240px] max-w-[320px]
         transition-all duration-200
-        hover:shadow-xl
+        ${selected ? 'border-2' : 'border'}
       `}
+      style={{
+        borderRadius: '10px',
+        backgroundColor: 'var(--card-bg)',
+        borderColor: selected ? 'var(--accent-primary)' : 'var(--border-primary)',
+        boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+      }}
       role="article"
       aria-label={`MCP node: ${data.name}`}
     >
@@ -45,58 +48,69 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
       <Handle
         type="target"
         position={Position.Top}
-        className="w-3 h-3 !bg-orange-400"
+        style={{
+          width: '10px',
+          height: '10px',
+          backgroundColor: 'var(--node-mcp)',
+          border: '2px solid var(--card-bg)',
+        }}
         aria-label="Input connection"
       />
 
       {/* Header with icon and name */}
       <div className="flex items-center gap-2 mb-2">
-        <Plug className="w-6 h-6 text-amber-300" aria-label="MCP tool icon" />
+        <div
+          className="w-8 h-8 rounded-md flex items-center justify-center"
+          style={{ backgroundColor: 'var(--node-mcp)', opacity: 0.1 }}
+        >
+          <Plug className="w-5 h-5" style={{ color: 'var(--node-mcp)' }} aria-label="MCP tool icon" />
+        </div>
 
         <div className="flex-1">
-          <div className="font-semibold text-white text-sm">{data.name}</div>
+          <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+            {data.name}
+          </div>
           <div className="flex items-center gap-1 mt-1">
             <Circle
-              className={`w-3 h-3 ${data.status === 'connected' ? 'fill-green-400 text-green-400' : 'fill-red-400 text-red-400'}`}
+              className={`w-2 h-2 ${data.status === 'connected' ? 'fill-green-500 text-green-500' : 'fill-red-500 text-red-500'}`}
               aria-label={`${data.status} status`}
             />
-            <span className="text-xs text-orange-200">
+            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
               {statusLabels[data.status]}
             </span>
           </div>
         </div>
-
-        {/* Status indicator */}
-        <div
-          className={`w-3 h-3 rounded-full ${statusColors[data.status]}`}
-          title={data.status}
-          aria-label={`Status: ${data.status}`}
-        />
       </div>
 
       {/* Server command preview */}
-      <div className="mb-2 p-2 bg-orange-950/50 rounded text-xs text-orange-200 font-mono line-clamp-2">
+      <div
+        className="mb-2 p-2 rounded text-xs font-mono line-clamp-2"
+        style={{
+          backgroundColor: 'var(--bg-tertiary)',
+          color: 'var(--text-secondary)'
+        }}
+      >
         {data.serverCommand}
       </div>
 
       {/* Tools count and credentials */}
       <div className="space-y-1 mb-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-orange-300">Tools:</span>
-          <span className="font-mono text-orange-100">
+          <span style={{ color: 'var(--text-secondary)' }}>Tools:</span>
+          <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
             {data.toolsEnabled?.length ?? 0} enabled
           </span>
         </div>
 
         <div className="flex items-center justify-between text-xs">
-          <span className="text-orange-300">Credentials:</span>
+          <span style={{ color: 'var(--text-secondary)' }}>Credentials:</span>
           <div className="flex items-center gap-1">
             {data.credentialsConfigured ? (
-              <Lock className="w-3 h-3 text-green-400" />
+              <Lock className="w-3 h-3" style={{ color: 'var(--success)' }} />
             ) : (
-              <Unlock className="w-3 h-3 text-orange-300" />
+              <Unlock className="w-3 h-3" style={{ color: 'var(--text-secondary)' }} />
             )}
-            <span className="text-orange-100">
+            <span style={{ color: 'var(--text-primary)' }}>
               {data.credentialsConfigured ? 'Configured' : 'Not configured'}
             </span>
           </div>
@@ -105,9 +119,9 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
 
       {/* Last checked */}
       {data.lastChecked && (
-        <div className="mb-2 text-xs text-orange-300">
+        <div className="mb-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
           Last checked:{' '}
-          <span className="text-orange-200">
+          <span style={{ color: 'var(--text-primary)' }}>
             {formatDistanceToNow(data.lastChecked, { addSuffix: true })}
           </span>
         </div>
@@ -115,7 +129,13 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
 
       {/* Error message */}
       {data.error && (
-        <div className="mt-2 p-2 bg-red-950/50 rounded text-xs text-red-300 line-clamp-2">
+        <div
+          className="mt-2 p-2 rounded text-xs line-clamp-2"
+          style={{
+            backgroundColor: 'var(--bg-tertiary)',
+            color: 'var(--error)'
+          }}
+        >
           <span className="inline-flex items-center gap-1">
             <AlertTriangle className="w-4 h-4" />
             <span>{data.error}</span>
@@ -126,7 +146,12 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
       <Handle
         type="source"
         position={Position.Bottom}
-        className="w-3 h-3 !bg-orange-400"
+        style={{
+          width: '10px',
+          height: '10px',
+          backgroundColor: 'var(--node-mcp)',
+          border: '2px solid var(--card-bg)',
+        }}
         aria-label="Output connection"
       />
     </div>

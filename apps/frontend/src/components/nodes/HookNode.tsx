@@ -32,18 +32,22 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
     'on-error': XCircle,
   } as const;
 
-  const TypeIcon = hookIconMap[data.type];
+  const TypeIcon = data.type ? hookIconMap[data.type] : Play;
 
   return (
     <div
       className={`
         relative
-        px-4 py-3 rounded-lg border-2 min-w-[240px] max-w-[320px]
-        ${selected ? 'border-green-500 shadow-lg shadow-green-500/50' : 'border-gray-700'}
-        bg-gradient-to-br from-green-900 to-green-800
+        px-4 py-3 min-w-[240px] max-w-[320px]
         transition-all duration-200
-        hover:shadow-xl
+        ${selected ? 'border-2' : 'border'}
       `}
+      style={{
+        borderRadius: '10px',
+        backgroundColor: 'var(--card-bg)',
+        borderColor: selected ? 'var(--accent-primary)' : 'var(--border-primary)',
+        boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+      }}
       role="article"
       aria-label={`Hook node: ${data.name || 'Unnamed Hook'}`}
     >
@@ -55,42 +59,63 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3 h-3 !bg-green-400"
+        style={{
+          width: '10px',
+          height: '10px',
+          backgroundColor: 'var(--node-hook)',
+          border: '2px solid var(--card-bg)',
+        }}
         aria-label="Input connection"
       />
 
       {/* Header with icon and name */}
       <div className="flex items-center gap-2 mb-2">
-        <TypeIcon className="w-6 h-6 text-green-300" aria-label={`${data.type} icon`} />
+        <div
+          className="w-8 h-8 rounded-md flex items-center justify-center"
+          style={{ backgroundColor: 'var(--node-hook)', opacity: 0.1 }}
+        >
+          <TypeIcon className="w-5 h-5" style={{ color: 'var(--node-hook)' }} aria-label={`${data.type} icon`} />
+        </div>
 
         <div className="flex-1">
-          <div className="font-semibold text-white text-sm">{data.name || 'Unnamed Hook'}</div>
-          <div className="text-xs text-green-200">{data.type}</div>
+          <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+            {data.name || 'Unnamed Hook'}
+          </div>
+          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+            {data.type}
+          </div>
         </div>
 
         {/* Enabled/Disabled indicator */}
         <div className="flex items-center gap-1">
           <Circle
-            className={`w-3 h-3 ${data.enabled ? 'fill-green-400 text-green-400' : 'fill-gray-600 text-gray-600'}`}
+            className={`w-2 h-2 ${data.enabled ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-gray-400'}`}
             aria-label={data.enabled ? 'Enabled' : 'Disabled'}
           />
-          <span className="text-xs text-green-200">
-            {data.enabled ? 'Enabled' : 'Disabled'}
-          </span>
         </div>
       </div>
 
       {/* Action type */}
       <div className="mb-2 flex items-center justify-between text-xs">
-        <span className="text-green-300">Action:</span>
-        <span className="font-mono text-green-100">{data.actionType}</span>
+        <span style={{ color: 'var(--text-secondary)' }}>Action:</span>
+        <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
+          {data.actionType}
+        </span>
       </div>
 
       {/* Condition */}
       {data.condition && (
         <div className="mb-2">
-          <div className="text-xs text-green-300 mb-1">Condition:</div>
-          <div className="p-2 bg-green-950/50 rounded text-xs text-green-200 font-mono line-clamp-2">
+          <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
+            Condition:
+          </div>
+          <div
+            className="p-2 rounded text-xs font-mono line-clamp-2"
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-secondary)'
+            }}
+          >
             {data.condition}
           </div>
         </div>
@@ -98,14 +123,17 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
 
       {/* Last execution */}
       {data.lastExecution && (
-        <div className="pt-2 mt-2 border-t border-green-700">
+        <div
+          className="pt-2 mt-2"
+          style={{ borderTop: '1px solid var(--border-primary)' }}
+        >
           <div className="flex items-center justify-between text-xs">
-            <span className="text-green-300">Last run:</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Last run:</span>
             <span
               className={`font-medium ${
                 data.lastExecution.result === 'success'
-                  ? 'text-green-400'
-                  : 'text-red-400'
+                  ? 'text-green-500'
+                  : 'text-red-500'
               }`}
             >
               {data.lastExecution.result === 'success' ? (
@@ -127,7 +155,12 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
       <Handle
         type="source"
         position={Position.Right}
-        className="w-3 h-3 !bg-green-400"
+        style={{
+          width: '10px',
+          height: '10px',
+          backgroundColor: 'var(--node-hook)',
+          border: '2px solid var(--card-bg)',
+        }}
         aria-label="Output connection"
       />
     </div>

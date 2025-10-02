@@ -7,40 +7,30 @@ const nodeTemplates = [
     label: 'Agent',
     Icon: Bot,
     description: 'Main AI agent with Claude',
-    color: 'blue',
+    iconColor: 'var(--node-agent)',
   },
   {
     type: 'subagent',
     label: 'Subagent',
     Icon: Users,
     description: 'Specialized task agent',
-    color: 'purple',
+    iconColor: 'var(--node-subagent)',
   },
   {
     type: 'hook',
     label: 'Hook',
     Icon: Webhook,
     description: 'Event handler',
-    color: 'green',
+    iconColor: 'var(--node-hook)',
   },
   {
     type: 'mcp',
     label: 'MCP Tool',
     Icon: Plug,
     description: 'External tool integration',
-    color: 'orange',
+    iconColor: 'var(--node-mcp)',
   },
 ] as const;
-
-const colorClasses = {
-  blue: 'bg-blue-900/50 hover:bg-blue-800/70 border-blue-700 hover:border-blue-600',
-  purple:
-    'bg-purple-900/50 hover:bg-purple-800/70 border-purple-700 hover:border-purple-600',
-  green:
-    'bg-green-900/50 hover:bg-green-800/70 border-green-700 hover:border-green-600',
-  orange:
-    'bg-orange-900/50 hover:bg-orange-800/70 border-orange-700 hover:border-orange-600',
-};
 
 export function NodePalette() {
   const { actions } = useCanvasStore();
@@ -63,52 +53,158 @@ export function NodePalette() {
   };
 
   return (
-    <div className="w-64 glass border-r border-gray-700 p-4 flex flex-col h-full backdrop-blur-xl">
-      <div className="mb-6">
-        <h3 className="text-white font-semibold mb-1" style={{ fontSize: 'var(--font-size-lg)', letterSpacing: 'var(--letter-spacing-tight)' }}>Node Palette</h3>
-        <p className="text-gray-400" style={{ fontSize: 'var(--font-size-xs)' }}>
-          Drag nodes onto the canvas or click to add
+    <div
+      className="w-64 flex flex-col h-full overflow-hidden"
+      style={{
+        background: 'var(--bg-secondary)',
+        borderRight: '1px solid var(--border-primary)',
+      }}
+    >
+      {/* Header Section */}
+      <div
+        className="px-4 py-4"
+        style={{
+          borderBottom: '1px solid var(--border-primary)',
+        }}
+      >
+        <h3
+          className="font-semibold mb-1"
+          style={{
+            fontSize: 'var(--font-size-base)',
+            letterSpacing: 'var(--letter-spacing-tight)',
+            color: 'var(--text-primary)',
+          }}
+        >
+          Components
+        </h3>
+        <p
+          style={{
+            fontSize: 'var(--font-size-xs)',
+            color: 'var(--text-secondary)',
+            lineHeight: 'var(--line-height-normal)',
+          }}
+        >
+          Drag to canvas or click to add
         </p>
       </div>
 
-      <div className="space-y-2 flex-1 overflow-y-auto">
-        {nodeTemplates.map(template => (
-          <div
-            key={template.type}
-            draggable
-            onDragStart={e => onDragStart(e, template.type)}
-            onClick={() => handleAddNode(template.type)}
-            className={`p-3 border-2 cursor-move transition-all hover:scale-[1.02] active:scale-[0.98] ${
-              colorClasses[template.color]
-            }`}
-            style={{ borderRadius: 'var(--radius-lg)', transitionTimingFunction: 'var(--ease-ios)' }}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <template.Icon
-                className="w-5 h-5"
-                aria-label={`${template.label} icon`}
-              />
-              <span className="font-semibold text-white" style={{ fontSize: 'var(--font-size-sm)' }}>{template.label}</span>
+      {/* Node Templates Section */}
+      <div className="flex-1 overflow-y-auto px-3 py-3">
+        <div className="space-y-2">
+          {nodeTemplates.map(template => (
+            <div
+              key={template.type}
+              draggable
+              onDragStart={e => onDragStart(e, template.type)}
+              onClick={() => handleAddNode(template.type)}
+              className="cursor-move transition-all"
+              style={{
+                background: 'var(--card-bg)',
+                border: '1px solid var(--border-primary)',
+                borderRadius: 'var(--radius-md)',
+                padding: '12px',
+                transitionDuration: '0.2s',
+                transitionTimingFunction: 'var(--ease-ios)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-primary)';
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'translateY(0) scale(0.98)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1)';
+              }}
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="flex-shrink-0 flex items-center justify-center"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: 'var(--radius-md)',
+                    background: `color-mix(in srgb, ${template.iconColor} 10%, transparent)`,
+                  }}
+                >
+                  <template.Icon
+                    className="w-4 h-4"
+                    style={{ color: template.iconColor }}
+                    aria-label={`${template.label} icon`}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div
+                    className="font-medium mb-0.5"
+                    style={{
+                      fontSize: 'var(--font-size-sm)',
+                      color: 'var(--text-primary)',
+                      lineHeight: 'var(--line-height-tight)',
+                    }}
+                  >
+                    {template.label}
+                  </div>
+                  <p
+                    style={{
+                      fontSize: 'var(--font-size-xs)',
+                      lineHeight: 'var(--line-height-normal)',
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    {template.description}
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-gray-300" style={{ fontSize: 'var(--font-size-xs)', lineHeight: 'var(--line-height-normal)' }}>{template.description}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-700">
-        <div className="text-gray-400 space-y-1" style={{ fontSize: 'var(--font-size-xs)' }}>
-          <p>
-            <kbd className="px-1 py-0.5 bg-gray-900 text-gray-300" style={{ borderRadius: 'var(--radius-sm)' }}>
+      {/* Keyboard Shortcuts Section */}
+      <div
+        className="px-4 py-3"
+        style={{
+          borderTop: '1px solid var(--border-primary)',
+          background: 'var(--bg-secondary)',
+        }}
+      >
+        <div className="space-y-2" style={{ fontSize: 'var(--font-size-xs)' }}>
+          <div className="flex items-center gap-2">
+            <kbd
+              className="px-2 py-0.5 font-medium"
+              style={{
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-primary)',
+                fontSize: 'var(--font-size-xs)',
+              }}
+            >
               Del
-            </kbd>{' '}
-            Delete selected
-          </p>
-          <p>
-            <kbd className="px-1 py-0.5 bg-gray-900 text-gray-300" style={{ borderRadius: 'var(--radius-sm)' }}>
+            </kbd>
+            <span style={{ color: 'var(--text-tertiary)' }}>Delete selected</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <kbd
+              className="px-2 py-0.5 font-medium"
+              style={{
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-primary)',
+                fontSize: 'var(--font-size-xs)',
+              }}
+            >
               Scroll
-            </kbd>{' '}
-            Zoom canvas
-          </p>
+            </kbd>
+            <span style={{ color: 'var(--text-tertiary)' }}>Zoom canvas</span>
+          </div>
         </div>
       </div>
     </div>
