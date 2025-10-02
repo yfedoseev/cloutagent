@@ -1,7 +1,11 @@
 {
-  "hooks": {},
+  "hooks": {
+    "post-edit": "",
+    "post-write": "",
+    "pre-commit": ""
+  },
   "settings": {
     "auto-format": false,
-    "run-hooks": false
+    "run-hooks": true
   }
 }

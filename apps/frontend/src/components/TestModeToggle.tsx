@@ -25,7 +25,7 @@ export function TestModeToggle({
             onChange={e => onChange(e.target.checked)}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-coral-500"></div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -37,8 +37,8 @@ export function TestModeToggle({
       </label>
 
       {enabled && showEstimate && (
-        <div className="ml-14 p-3 bg-blue-900/20 border border-blue-500/50 rounded-lg">
-          <div className="text-xs font-semibold text-blue-300 mb-2">
+        <div className="ml-14 p-3 bg-coral-900/20 border border-coral-500/50 rounded-lg">
+          <div className="text-xs font-semibold text-coral-300 mb-2">
             Estimated Real Execution:
           </div>
           <div className="flex flex-col gap-1 text-xs text-gray-300">

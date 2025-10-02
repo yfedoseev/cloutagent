@@ -10,12 +10,19 @@ import ReactFlow, {
   Panel,
   NodeTypes,
   ReactFlowInstance,
+  Handle,
+  Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useCanvasStore } from '../stores/canvas';
 import { usePropertyPanelStore } from '../stores/propertyPanelStore';
 import { useValidationStore } from '../stores/validationStore';
-import { AgentNode, SubagentNode, HookNode, MCPNode } from './nodes';
+import { AgentNode } from './nodes/AgentNode';
+import { SubagentNode } from './nodes/SubagentNode';
+import { HookNode } from './nodes/HookNode';
+import { MCPNode } from './nodes/MCPNode';
+import { CanvasEmptyState } from './canvas/CanvasEmptyState';
+import { CustomEdge } from './canvas/CustomEdge';
 import { apiClient } from '../lib/api-client';
 import { ExecutionMonitor } from './ExecutionMonitor';
 import { ExecutionControls } from './ExecutionControls';
@@ -24,12 +31,17 @@ import { ValidationPanel } from './ValidationPanel';
 import { TestModeToggle } from './TestModeToggle';
 import { TestModeExecution } from './TestModeExecution';
 import { DryRunEstimate } from './DryRunEstimate';
+import { WorkflowData } from '@cloutagent/types';
 
 const nodeTypes: NodeTypes = {
   agent: AgentNode,
   subagent: SubagentNode,
   hook: HookNode,
   mcp: MCPNode,
+};
+
+const edgeTypes = {
+  default: CustomEdge,
 };
 
 interface FlowCanvasProps {
@@ -104,9 +116,18 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
   // Autosave every 30 seconds
   useEffect(() => {
     const interval = setInterval(async () => {
-      const workflow = {
-        nodes: storeNodes,
-        edges: storeEdges,
+      const workflow: WorkflowData = {
+        nodes: storeNodes.map(node => ({
+          id: node.id,
+          type: (node.type as 'agent' | 'subagent' | 'hook' | 'mcp') || 'agent',
+          data: { config: node.data },
+          position: node.position,
+        })),
+        edges: storeEdges.map(edge => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+        })),
         viewport,
         version: '1.0.0',
       };
@@ -131,7 +152,12 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
   // Handle node drag end - update positions in store
   const onNodeDragStop = useCallback(
     (_event: React.MouseEvent, node: any) => {
-      actions.updateNode(node.id, { position: node.position });
+      // Update the entire node data including position
+      const nodeData = {
+        ...node.data,
+        position: node.position,
+      };
+      actions.updateNode(node.id, nodeData);
     },
     [actions],
   );
@@ -202,9 +228,18 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
     setIsSaving(true);
 
     try {
-      const workflow = {
-        nodes: storeNodes,
-        edges: storeEdges,
+      const workflow: WorkflowData = {
+        nodes: storeNodes.map(node => ({
+          id: node.id,
+          type: (node.type as 'agent' | 'subagent' | 'hook' | 'mcp') || 'agent',
+          data: { config: node.data },
+          position: node.position,
+        })),
+        edges: storeEdges.map(edge => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+        })),
         viewport,
         version: '1.0.0',
       };
@@ -326,36 +361,51 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
         onDrop={onDrop}
         onDragOver={onDragOver}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         defaultViewport={viewport}
         fitView
         className="reactflow-dark"
       >
+        {/* SVG Gradient Definitions */}
+        <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+          <defs>
+            <linearGradient id="edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+              <stop offset="50%" stopColor="#3b82f6" stopOpacity="1" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Grid Background */}
         <Background
-          color="#374151"
-          gap={16}
+          color="rgba(255, 255, 255, 0.05)"
+          gap={20}
           size={1}
-          variant="dots"
-          style={{ backgroundColor: '#111827' }}
         />
-        <Controls className="bg-gray-800 border border-gray-700" />
+
+        {/* Empty State (when no nodes) */}
+        {nodes.length === 0 && <CanvasEmptyState />}
+
+        <Controls className="glass rounded-xl border border-white/10" />
         <MiniMap
           nodeColor={node => {
             switch (node.type) {
               case 'agent':
-                return '#1E3A8A';
+                return '#3b82f6';
               case 'subagent':
-                return '#581C87';
+                return '#8b5cf6';
               case 'hook':
-                return '#14532D';
+                return '#10b981';
               case 'mcp':
-                return '#7C2D12';
+                return '#f59e0b';
               default:
-                return '#374151';
+                return '#6b7280';
             }
           }}
-          className="bg-gray-800 border border-gray-700"
-          style={{ backgroundColor: '#1F2937' }}
+          className="glass rounded-xl border border-white/10"
           maskColor="rgba(0, 0, 0, 0.6)"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
         />
         <Panel position="top-left">
           <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
@@ -375,44 +425,45 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
             <div>Edges: {edges.length}</div>
             <div>Zoom: {(viewport.zoom * 100).toFixed(0)}%</div>
           </div>
+          {/* PRIMARY ACTION - Most important, warm coral */}
           <button
             onClick={handleRunWorkflow}
             disabled={isExecuting || nodes.length === 0}
-            className={`px-4 py-2 rounded text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              testMode
-                ? 'bg-blue-600 hover:bg-blue-700'
-                : 'bg-green-600 hover:bg-green-700'
-            }`}
+            className="btn-primary-coral disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isExecuting
-              ? 'Starting...'
-              : testMode
-                ? '🧪 Test Run'
-                : '▶️ Run Workflow'}
+            {isExecuting ? 'Starting...' : testMode ? 'Test Run' : 'Run Workflow'}
           </button>
+
+          {/* SECONDARY ACTION - Glassmorphic */}
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-glass disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? 'Saving...' : 'Save'}
           </button>
+
+          {/* Auto-save timestamp - keep as is */}
           {lastSaved && (
             <span className="text-xs text-gray-400">
               Last saved: {lastSaved.toLocaleTimeString()}
             </span>
           )}
-          <button
-            onClick={handleClearCanvas}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white text-sm font-medium transition-colors"
-          >
-            Clear Canvas
-          </button>
+
+          {/* TERTIARY ACTION - Minimal ghost */}
           <button
             onClick={() => setShowHistory(true)}
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-white text-sm font-medium transition-colors"
+            className="btn-ghost"
           >
             History
+          </button>
+
+          {/* DESTRUCTIVE ACTION - Subtle, requires confirmation */}
+          <button
+            onClick={handleClearCanvas}
+            className="btn-destructive"
+          >
+            Clear Canvas
           </button>
         </Panel>
         <Panel position="bottom-left">

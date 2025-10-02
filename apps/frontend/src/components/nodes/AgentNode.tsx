@@ -1,12 +1,13 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
+import { Bot } from 'lucide-react';
 import { statusColors } from './utils';
 import { ValidationBadge } from './ValidationBadge';
 import type { ValidationError } from '@cloutagent/types';
 
 interface AgentNodeData {
-  name: string;
-  model: string;
+  name?: string;
+  model?: string;
   systemPrompt?: string;
   status?: 'idle' | 'running' | 'completed' | 'failed';
   tokenUsage?: { input: number; output: number };
@@ -22,6 +23,9 @@ export const AgentNode = memo(
       ? data.tokenUsage.input + data.tokenUsage.output
       : 0;
 
+    const errors = data.validationErrors?.filter((e) => e.severity === 'error') || [];
+    const warnings = data.validationErrors?.filter((e) => e.severity === 'warning') || [];
+
     return (
       <div
         className={`
@@ -33,9 +37,12 @@ export const AgentNode = memo(
         hover:shadow-xl
       `}
         role="article"
-        aria-label={`Agent node: ${data.name}`}
+        aria-label={`Agent node: ${data.name || 'Unnamed Agent'}`}
       >
-        <ValidationBadge errors={data.validationErrors || []} />
+        {/* Validation Badge - only render when errors or warnings exist */}
+        {(errors.length > 0 || warnings.length > 0) && (
+          <ValidationBadge errors={errors} warnings={warnings} />
+        )}
 
         <Handle
           type="target"
@@ -46,13 +53,13 @@ export const AgentNode = memo(
 
         {/* Header with icon and name */}
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-2xl" role="img" aria-label="Agent icon">
-            🤖
-          </span>
+          <Bot className="w-6 h-6 text-blue-300" aria-label="Agent icon" />
 
           <div className="flex-1">
-            <div className="font-semibold text-white text-sm">{data.name}</div>
-            <div className="text-xs text-blue-200">{data.model}</div>
+            <div className="font-semibold text-white text-sm">
+              {data.name || 'Unnamed Agent'}
+            </div>
+            <div className="text-xs text-blue-200">{data.model || 'No model'}</div>
           </div>
 
           {/* Status indicator */}
@@ -66,7 +73,7 @@ export const AgentNode = memo(
         </div>
 
         {/* Configuration info */}
-        {(data.temperature !== undefined || data.maxTokens) && (
+        {(data.temperature !== undefined || data.maxTokens !== undefined) && (
           <div className="space-y-1 text-xs text-blue-100 mb-2">
             {data.temperature !== undefined && (
               <div className="flex justify-between">
@@ -75,7 +82,7 @@ export const AgentNode = memo(
               </div>
             )}
 
-            {data.maxTokens && (
+            {data.maxTokens !== undefined && (
               <div className="flex justify-between">
                 <span className="text-blue-300">Max Tokens:</span>
                 <span className="font-mono">

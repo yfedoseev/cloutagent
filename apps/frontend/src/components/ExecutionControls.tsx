@@ -97,20 +97,22 @@ export function ExecutionControls({
       {/* Running state controls */}
       {status === 'running' && (
         <>
+          {/* SECONDARY - Pause is important but not primary */}
           <button
             onClick={handlePause}
             disabled={loading !== null}
-            className="px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-600 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+            className="btn-glass text-sm disabled:opacity-50 flex items-center gap-1.5"
           >
-            {loading === 'pause' ? <>Pausing...</> : <>Pause</>}
+            {loading === 'pause' ? 'Pausing...' : 'Pause'}
           </button>
 
+          {/* DESTRUCTIVE - Cancellation is dangerous */}
           <button
             onClick={handleCancel}
             disabled={loading !== null}
-            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+            className="btn-destructive text-sm disabled:opacity-50 flex items-center gap-1.5"
           >
-            {loading === 'cancel' ? <>Cancelling...</> : <>Cancel</>}
+            {loading === 'cancel' ? 'Cancelling...' : 'Cancel'}
           </button>
         </>
       )}
@@ -118,20 +120,22 @@ export function ExecutionControls({
       {/* Paused state controls */}
       {status === 'paused' && (
         <>
+          {/* PRIMARY - Resume is most important when paused */}
           <button
             onClick={handleResume}
             disabled={loading !== null}
-            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+            className="btn-primary-coral text-sm disabled:opacity-50 flex items-center gap-1.5"
           >
-            {loading === 'resume' ? <>Resuming...</> : <>Resume</>}
+            {loading === 'resume' ? 'Resuming...' : 'Resume'}
           </button>
 
+          {/* DESTRUCTIVE - Cancel option */}
           <button
             onClick={handleCancel}
             disabled={loading !== null}
-            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+            className="btn-destructive text-sm disabled:opacity-50 flex items-center gap-1.5"
           >
-            {loading === 'cancel' ? <>Cancelling...</> : <>Cancel</>}
+            {loading === 'cancel' ? 'Cancelling...' : 'Cancel'}
           </button>
         </>
       )}
@@ -140,7 +144,7 @@ export function ExecutionControls({
       {status === 'failed' && (
         <button
           onClick={handleRetry}
-          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+          className="btn-primary-coral text-sm flex items-center gap-1.5"
         >
           Retry
         </button>

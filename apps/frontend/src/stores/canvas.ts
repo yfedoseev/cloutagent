@@ -54,6 +54,31 @@ export const useCanvasStore = create<CanvasStore>()(
           });
         },
 
+        duplicateNode: (id: string) => {
+          set(state => {
+            const node = state.nodes.find((n: Node) => n.id === id);
+            if (!node) return;
+
+            const newNode: Node = {
+              ...node,
+              id: `${node.type}-${Date.now()}`,
+              position: {
+                x: node.position.x + 50,
+                y: node.position.y + 50,
+              },
+              data: {
+                ...node.data,
+                config: {
+                  ...node.data.config,
+                  name: `${node.data.config?.name || 'Untitled'} (Copy)`,
+                },
+              },
+            };
+
+            state.nodes.push(newNode);
+          });
+        },
+
         selectNode: (id: string | null) => {
           set({ selectedNodeId: id });
         },

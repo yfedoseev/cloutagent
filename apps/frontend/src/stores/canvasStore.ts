@@ -48,6 +48,29 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
       }));
     },
 
+    duplicateNode: (id: string) => {
+      const node = get().nodes.find(n => n.id === id);
+      if (!node) return;
+
+      const newNode: Node = {
+        ...node,
+        id: `${node.type}-${Date.now()}`,
+        position: {
+          x: node.position.x + 50,
+          y: node.position.y + 50,
+        },
+        data: {
+          ...node.data,
+          config: {
+            ...node.data.config,
+            name: `${node.data.config?.name || 'Untitled'} (Copy)`,
+          },
+        },
+      };
+
+      set(state => ({ nodes: [...state.nodes, newNode] }));
+    },
+
     selectNode: (id: string | null) => set({ selectedNodeId: id }),
 
     addEdge: (source: string, target: string) => {

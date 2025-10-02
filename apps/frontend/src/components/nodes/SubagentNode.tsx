@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { statusColors, subagentTypeIcons, formatDuration } from './utils';
+import { Check, Palette, Settings, Database, Bot, User, Clock, XCircle } from 'lucide-react';
+import { statusColors, formatDuration } from './utils';
 import { ValidationBadge } from './ValidationBadge';
 import type { ValidationError } from '@cloutagent/types';
 
@@ -20,9 +21,17 @@ interface SubagentNodeData {
   validationErrors?: ValidationError[];
 }
 
+const subagentIconMap = {
+  'frontend-engineer': Palette,
+  'backend-engineer': Settings,
+  'database-engineer': Database,
+  'ml-engineer': Bot,
+  'general-purpose': User,
+} as const;
+
 export const SubagentNode = memo(
   ({ data, selected }: NodeProps<SubagentNodeData>) => {
-    const typeIcon = subagentTypeIcons[data.type];
+    const TypeIcon = data.type ? subagentIconMap[data.type] || User : User;
 
     return (
       <div
@@ -35,9 +44,12 @@ export const SubagentNode = memo(
         hover:shadow-xl
       `}
         role="article"
-        aria-label={`Subagent node: ${data.name}`}
+        aria-label={`Subagent node: ${data.name || 'Unnamed Subagent'}`}
       >
-        <ValidationBadge errors={data.validationErrors || []} />
+        <ValidationBadge
+          errors={data.validationErrors?.filter((e) => e.severity === 'error') || []}
+          warnings={data.validationErrors?.filter((e) => e.severity === 'warning') || []}
+        />
 
         <Handle
           type="target"
@@ -48,16 +60,10 @@ export const SubagentNode = memo(
 
         {/* Header with icon and name */}
         <div className="flex items-center gap-2 mb-2">
-          <span
-            className="text-2xl"
-            role="img"
-            aria-label={`${data.type} icon`}
-          >
-            {typeIcon}
-          </span>
+          <TypeIcon className="w-6 h-6 text-purple-300" aria-label={`${data.type || 'generic'} icon`} />
 
           <div className="flex-1">
-            <div className="font-semibold text-white text-sm">{data.name}</div>
+            <div className="font-semibold text-white text-sm">{data.name || 'Unnamed Subagent'}</div>
             <div className="text-xs text-purple-200">{data.type}</div>
           </div>
 
@@ -81,7 +87,10 @@ export const SubagentNode = memo(
         {/* Execution time */}
         {data.executionTime !== undefined && (
           <div className="mb-2 flex items-center justify-between text-xs">
-            <span className="text-purple-300">⏱️ Execution:</span>
+            <span className="text-purple-300 inline-flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              <span>Execution:</span>
+            </span>
             <span className="font-mono text-purple-100">
               {formatDuration(data.executionTime)}
             </span>
@@ -91,13 +100,19 @@ export const SubagentNode = memo(
         {/* Result or Error */}
         {data.result && !data.error && (
           <div className="mt-2 p-2 bg-purple-950/50 rounded text-xs text-green-300 line-clamp-2">
-            ✓ {data.result}
+            <span className="inline-flex items-center gap-1">
+              <Check className="w-3 h-3" />
+              <span>{data.result}</span>
+            </span>
           </div>
         )}
 
         {data.error && (
           <div className="mt-2 p-2 bg-red-950/50 rounded text-xs text-red-300 line-clamp-2">
-            ✗ {data.error}
+            <span className="inline-flex items-center gap-1">
+              <XCircle className="w-3 h-3" />
+              <span>{data.error}</span>
+            </span>
           </div>
         )}
 

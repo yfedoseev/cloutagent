@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { hookTypeIcons } from './utils';
+import { Check, Play, CheckCircle2, Wrench, Hammer, XCircle, Circle } from 'lucide-react';
 import { ValidationBadge } from './ValidationBadge';
 import type { ValidationError } from '@cloutagent/types';
 
@@ -24,7 +24,15 @@ interface HookNodeData {
 }
 
 export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
-  const typeIcon = hookTypeIcons[data.type];
+  const hookIconMap = {
+    'pre-execution': Play,
+    'post-execution': CheckCircle2,
+    'pre-tool-call': Wrench,
+    'post-tool-call': Hammer,
+    'on-error': XCircle,
+  } as const;
+
+  const TypeIcon = hookIconMap[data.type];
 
   return (
     <div
@@ -37,9 +45,12 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
         hover:shadow-xl
       `}
       role="article"
-      aria-label={`Hook node: ${data.name}`}
+      aria-label={`Hook node: ${data.name || 'Unnamed Hook'}`}
     >
-      <ValidationBadge errors={data.validationErrors || []} />
+      <ValidationBadge
+        errors={data.validationErrors?.filter((e) => e.severity === 'error') || []}
+        warnings={data.validationErrors?.filter((e) => e.severity === 'warning') || []}
+      />
 
       <Handle
         type="target"
@@ -50,24 +61,19 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
 
       {/* Header with icon and name */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-2xl" role="img" aria-label={`${data.type} icon`}>
-          {typeIcon}
-        </span>
+        <TypeIcon className="w-6 h-6 text-green-300" aria-label={`${data.type} icon`} />
 
         <div className="flex-1">
-          <div className="font-semibold text-white text-sm">{data.name}</div>
+          <div className="font-semibold text-white text-sm">{data.name || 'Unnamed Hook'}</div>
           <div className="text-xs text-green-200">{data.type}</div>
         </div>
 
         {/* Enabled/Disabled indicator */}
         <div className="flex items-center gap-1">
-          <span
-            className="text-sm"
-            role="img"
+          <Circle
+            className={`w-3 h-3 ${data.enabled ? 'fill-green-400 text-green-400' : 'fill-gray-600 text-gray-600'}`}
             aria-label={data.enabled ? 'Enabled' : 'Disabled'}
-          >
-            {data.enabled ? '🟢' : '⚫'}
-          </span>
+          />
           <span className="text-xs text-green-200">
             {data.enabled ? 'Enabled' : 'Disabled'}
           </span>
@@ -102,9 +108,17 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
                   : 'text-red-400'
               }`}
             >
-              {data.lastExecution.result === 'success'
-                ? '✓ Success'
-                : '✗ Failed'}
+              {data.lastExecution.result === 'success' ? (
+                <span className="inline-flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  <span>Success</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  <XCircle className="w-3 h-3" />
+                  <span>Failed</span>
+                </span>
+              )}
             </span>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Bot, Users, Webhook, Plug, Package } from 'lucide-react';
 import { usePropertyPanelStore } from '../stores/propertyPanelStore';
 import { useCanvasStore } from '../stores/canvas';
 import {
@@ -7,6 +8,14 @@ import {
   HookProperties,
   MCPProperties,
 } from './properties';
+
+// Node icon mapping
+const nodeIcons = {
+  agent: Bot,
+  subagent: Users,
+  hook: Webhook,
+  mcp: Plug,
+};
 
 export function PropertyPanel() {
   const { isOpen, nodeId, nodeType, closePanel } = usePropertyPanelStore();
@@ -43,7 +52,10 @@ export function PropertyPanel() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, closePanel]);
 
-  if (!isOpen || !selectedNode) return null;
+  // Empty state when no node is selected
+  if (!isOpen || !selectedNode) {
+    return null;
+  }
 
   const handleUpdate = (updates: Partial<typeof selectedNode>) => {
     if (updates.data) {
@@ -55,6 +67,21 @@ export function PropertyPanel() {
     actions.deleteNode(nodeId!);
     closePanel();
   };
+
+  const handleDuplicate = () => {
+    if (!selectedNode) return;
+    actions.duplicateNode(selectedNode.id);
+    closePanel();
+  };
+
+  const handleResetDefaults = () => {
+    // Reset to default values based on node type
+    // This is a placeholder - implementation depends on node type defaults
+    // TODO: Implement reset functionality per node type
+  };
+
+  const NodeIcon =
+    nodeIcons[nodeType as keyof typeof nodeIcons] || Package;
 
   // Render appropriate property editor based on node type
   const renderProperties = () => {
@@ -78,7 +105,8 @@ export function PropertyPanel() {
     <div
       id="property-panel"
       className={`
-        fixed right-0 top-0 h-full w-96 bg-gray-800 border-l border-gray-700
+        fixed right-0 top-0 h-full w-96
+        glass-strong border-l border-white/10
         shadow-2xl z-50 overflow-y-auto
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
@@ -89,51 +117,84 @@ export function PropertyPanel() {
       aria-modal="true"
     >
       {/* Header */}
-      <div className="sticky top-0 bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between z-10">
-        <div>
-          <h2 className="text-lg font-bold text-white">Properties</h2>
-          <p className="text-sm text-gray-400">{nodeType} node</p>
+      <div className="panel-header sticky top-0 glass-strong border-b border-white/10 p-4 z-10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Node Icon */}
+            <NodeIcon
+              className="w-8 h-8 text-white/80"
+              aria-label={`${nodeType} icon`}
+            />
+
+            {/* Node Name & Type */}
+            <div>
+              <h3 className="font-semibold text-white text-lg">
+                {selectedNode.data.config?.name || 'Untitled Node'}
+              </h3>
+              <p className="text-xs text-white/60 text-gray-400">
+                {nodeType} node
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={closePanel}
+            className="text-white/60 hover:text-white transition-colors"
+            aria-label="Close panel"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
-        <button
-          onClick={closePanel}
-          className="text-gray-400 hover:text-white transition-colors"
-          aria-label="Close panel"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        {/* Quick Actions */}
+        <div className="flex items-center gap-2 mt-3">
+          <button
+            className="btn-glass text-xs flex-1"
+            onClick={handleDuplicate}
+            aria-label="Duplicate node"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+            Duplicate
+          </button>
+          <button
+            className="btn-glass text-xs text-red-400 flex-1"
+            onClick={handleDelete}
+            aria-label="Delete node"
+          >
+            Delete
+          </button>
+        </div>
       </div>
 
       {/* Content */}
       <div className="p-4">{renderProperties()}</div>
 
-      {/* Footer actions */}
-      <div className="sticky bottom-0 bg-gray-800 border-t border-gray-700 p-4">
-        <div className="flex gap-2">
-          <button
-            onClick={handleDelete}
-            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white font-medium transition-colors"
+      {/* Footer with auto-save indicator */}
+      <div className="panel-footer sticky bottom-0 glass-strong border-t border-white/10 p-4">
+        <div className="flex items-center justify-between text-xs text-white/50">
+          <div
+            className="flex items-center gap-2"
+            data-testid="autosave-indicator"
           >
-            Delete Node
-          </button>
-
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span>Auto-saved</span>
+          </div>
           <button
-            onClick={closePanel}
-            className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white font-medium transition-colors"
+            className="text-blue-400 hover:text-blue-300 transition-colors"
+            onClick={handleResetDefaults}
           >
-            Close
+            Reset to defaults
           </button>
         </div>
       </div>

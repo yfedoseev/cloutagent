@@ -1,6 +1,5 @@
 # Claude Code Configuration
-# Hooks disabled due to path resolution issues
+# Using absolute paths to handle working directory changes
 
 [hooks]
-# Hooks disabled - run manually instead:
-# /usr/bin/make -C /home/yfedoseev/projects/cloutagent quick-check
+post-write = "/usr/bin/make -C /home/yfedoseev/projects/cloutagent quick-check"

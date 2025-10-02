@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { Rocket } from 'lucide-react';
 import { ProjectList } from './components/ProjectList';
 import { FlowCanvas } from './components/FlowCanvas';
 import { NodePalette } from './components/NodePalette';
 import { PropertyPanel } from './components/PropertyPanel';
 import { VariablesPanel } from './components/VariablesPanel';
+import { ThemeToggle } from './components/ThemeToggle';
 import { ReactFlowProvider } from 'reactflow';
 
 function App() {
@@ -34,17 +36,21 @@ function App() {
 
   if (view === 'canvas' && selectedProjectId) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-zinc-900 flex flex-col">
-        {/* Glassmorphic Navigation Bar */}
-        <div className="glass-strong sticky top-0 z-50 px-6 py-3 flex items-center justify-between border-b border-white/10">
+      <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-primary)' }}>
+        {/* Navigation Bar */}
+        <div className="sticky top-0 z-50 px-6 py-3 flex items-center justify-between" style={{
+          background: 'var(--bg-secondary)',
+          borderBottom: '1px solid var(--border-primary)'
+        }}>
           <button
             onClick={() => setView('list')}
-            className="btn-glass text-white/90 hover:text-white font-medium flex items-center gap-2 group"
+            className="btn-secondary font-medium flex items-center gap-2 group"
           >
             <span className="transition-transform group-hover:-translate-x-1">←</span>
             <span>Back to Projects</span>
           </button>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <button
               onClick={() => setShowVariables(true)}
               className="btn-primary text-white font-semibold flex items-center gap-2 shadow-apple-button hover:shadow-apple-button-hover"
@@ -52,8 +58,11 @@ function App() {
               <span>📦</span>
               <span>Variables</span>
             </button>
-            <div className="glass rounded-xl px-4 py-2">
-              <div className="text-white/90 font-semibold text-sm tracking-tight">
+            <div className="rounded-xl px-4 py-2" style={{
+              background: 'var(--bg-tertiary)',
+              border: '1px solid var(--border-secondary)'
+            }}>
+              <div className="font-semibold text-sm tracking-tight" style={{ color: 'var(--text-primary)' }}>
                 {selectedProjectId}
               </div>
             </div>
@@ -80,7 +89,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-zinc-900">
+    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
       {/* Premium Demo Banner */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial"></div>
@@ -89,7 +98,7 @@ function App() {
             onClick={handleDemoMode}
             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-apple rounded-2xl font-semibold text-lg text-white shadow-apple-button hover:shadow-apple-button-hover transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
           >
-            <span className="text-2xl group-hover:scale-110 transition-transform">🚀</span>
+            <Rocket className="w-6 h-6 group-hover:scale-110 transition-transform" />
             <span className="tracking-tight">Open Visual Workflow Builder</span>
           </button>
           <p className="text-white/60 text-sm mt-3 font-medium">

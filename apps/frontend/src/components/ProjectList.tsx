@@ -55,7 +55,7 @@ export function ProjectList({
             <h1 className="text-4xl font-semibold tracking-tight text-white/95">Projects</h1>
             <button
               disabled
-              className="btn-primary opacity-50 cursor-not-allowed flex items-center gap-2"
+              className="btn-primary-coral flex items-center gap-2"
             >
               <Plus size={20} />
               <span>Create New Project</span>
@@ -88,7 +88,7 @@ export function ProjectList({
             <h1 className="text-4xl font-semibold tracking-tight text-white/95">Projects</h1>
             <button
               onClick={onCreateProject}
-              className="btn-primary flex items-center gap-2"
+              className="btn-primary-coral flex items-center gap-2"
             >
               <Plus size={20} />
               <span>Create New Project</span>
@@ -99,7 +99,7 @@ export function ProjectList({
             <div className="text-red-300/80 mb-6 text-sm">{error}</div>
             <button
               onClick={loadProjects}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-xl font-medium mx-auto transition-all duration-200 hover:-translate-y-0.5 border border-red-500/30 hover:border-red-500/50"
+              className="btn-glass inline-flex items-center gap-2"
             >
               <RefreshCw size={16} />
               <span>Retry</span>
@@ -119,7 +119,7 @@ export function ProjectList({
             <h1 className="text-4xl font-semibold tracking-tight text-white/95">Projects</h1>
             <button
               onClick={onCreateProject}
-              className="btn-primary flex items-center gap-2"
+              className="btn-primary-coral flex items-center gap-2"
             >
               <Plus size={20} />
               <span>Create New Project</span>
@@ -137,7 +137,7 @@ export function ProjectList({
             </p>
             <button
               onClick={onCreateProject}
-              className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg"
+              className="btn-primary-coral inline-flex items-center gap-2 px-8 py-4 text-lg"
             >
               <Plus size={24} />
               <span>Create New Project</span>
@@ -156,7 +156,7 @@ export function ProjectList({
           <h1 className="text-4xl font-semibold tracking-tight text-white/95">Projects</h1>
           <button
             onClick={onCreateProject}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary-coral flex items-center gap-2"
             aria-label="Create new project"
           >
             <Plus size={20} />

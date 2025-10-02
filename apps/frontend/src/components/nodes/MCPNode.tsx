@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
+import { Circle, Plug, AlertTriangle, Lock, Unlock } from 'lucide-react';
 import { statusColors } from './utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ValidationBadge } from './ValidationBadge';
@@ -23,8 +24,6 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
     error: 'Error',
   };
 
-  const statusIcon = data.status === 'connected' ? '🟢' : '🔴';
-
   return (
     <div
       className={`
@@ -38,7 +37,10 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
       role="article"
       aria-label={`MCP node: ${data.name}`}
     >
-      <ValidationBadge errors={data.validationErrors || []} />
+      <ValidationBadge
+        errors={data.validationErrors?.filter((e) => e.severity === 'error') || []}
+        warnings={data.validationErrors?.filter((e) => e.severity === 'warning') || []}
+      />
 
       <Handle
         type="target"
@@ -49,14 +51,15 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
 
       {/* Header with icon and name */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-2xl" role="img" aria-label="MCP icon">
-          🔌
-        </span>
+        <Plug className="w-6 h-6 text-amber-300" aria-label="MCP tool icon" />
 
         <div className="flex-1">
           <div className="font-semibold text-white text-sm">{data.name}</div>
           <div className="flex items-center gap-1 mt-1">
-            <span className="text-xs">{statusIcon}</span>
+            <Circle
+              className={`w-3 h-3 ${data.status === 'connected' ? 'fill-green-400 text-green-400' : 'fill-red-400 text-red-400'}`}
+              aria-label={`${data.status} status`}
+            />
             <span className="text-xs text-orange-200">
               {statusLabels[data.status]}
             </span>
@@ -88,7 +91,11 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
         <div className="flex items-center justify-between text-xs">
           <span className="text-orange-300">Credentials:</span>
           <div className="flex items-center gap-1">
-            <span>{data.credentialsConfigured ? '🔐' : '🔓'}</span>
+            {data.credentialsConfigured ? (
+              <Lock className="w-3 h-3 text-green-400" />
+            ) : (
+              <Unlock className="w-3 h-3 text-orange-300" />
+            )}
             <span className="text-orange-100">
               {data.credentialsConfigured ? 'Configured' : 'Not configured'}
             </span>
@@ -109,7 +116,10 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
       {/* Error message */}
       {data.error && (
         <div className="mt-2 p-2 bg-red-950/50 rounded text-xs text-red-300 line-clamp-2">
-          ⚠️ {data.error}
+          <span className="inline-flex items-center gap-1">
+            <AlertTriangle className="w-4 h-4" />
+            <span>{data.error}</span>
+          </span>
         </div>
       )}
 

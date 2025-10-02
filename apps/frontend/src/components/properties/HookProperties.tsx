@@ -21,14 +21,24 @@ const HOOK_TYPES: { value: HookType; label: string; description: string }[] = [
     description: 'Runs after agent execution',
   },
   {
-    value: 'tool-call',
-    label: 'Tool Call',
-    description: 'Runs when a tool is called',
+    value: 'pre-tool-call',
+    label: 'Pre-Tool Call',
+    description: 'Runs before a tool is called',
   },
   {
-    value: 'error',
-    label: 'Error',
+    value: 'post-tool-call',
+    label: 'Post-Tool Call',
+    description: 'Runs after a tool is called',
+  },
+  {
+    value: 'on-error',
+    label: 'On Error',
     description: 'Runs when an error occurs',
+  },
+  {
+    value: 'on-validation-fail',
+    label: 'On Validation Fail',
+    description: 'Runs when validation fails',
   },
 ];
 

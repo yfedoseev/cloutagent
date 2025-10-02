@@ -6,6 +6,7 @@ export interface ICanvasActions {
   addNode(type: NodeType, position: { x: number; y: number }): void;
   updateNode(id: string, data: Partial<BaseNodeData>): void;
   deleteNode(id: string): void;
+  duplicateNode(id: string): void;
   selectNode(id: string | null): void;
 
   // Edge operations

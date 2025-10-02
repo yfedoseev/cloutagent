@@ -1,9 +1,8 @@
 import { Node } from 'reactflow';
-import { BaseNodeData } from '@cloutagent/types';
 
 export interface PropertyEditorProps {
-  node: Node<BaseNodeData>;
-  onChange: (updates: Partial<Node<BaseNodeData>>) => void;
+  node: Node<any>;
+  onChange: (updates: Partial<Node<any>>) => void;
 }
 
 export interface ValidationErrors {

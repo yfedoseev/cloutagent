@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { XCircle } from 'lucide-react';
 import { SSEClient } from '../lib/sse-client';
 import type { ExecutionResult, TokenUsage } from '@cloutagent/types';
 
@@ -119,7 +120,7 @@ export function ExecutionMonitor({
         {error ? (
           <div className="bg-red-900/20 border border-red-500 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <span className="text-2xl">❌</span>
+              <XCircle className="w-8 h-8 text-red-400" />
               <div>
                 <div className="font-semibold text-red-400 mb-2">
                   Execution Failed

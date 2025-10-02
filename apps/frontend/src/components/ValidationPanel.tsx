@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { XCircle, AlertTriangle, CheckCircle, ChevronUp, ChevronDown } from 'lucide-react';
 import type { ValidationResult, ValidationError } from '@cloutagent/types';
 import { useValidationStore } from '../stores/validationStore';
 
@@ -63,12 +64,12 @@ export function ValidationPanel({ projectId, workflow, onNodeClick }: Validation
         <div className="flex items-center gap-3">
           {validationResult.valid ? (
             <div className="flex items-center gap-2 text-green-400">
-              <span className="text-xl">✅</span>
+              <CheckCircle className="w-6 h-6" />
               <span className="font-semibold">Workflow Valid</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-red-400">
-              <span className="text-xl">❌</span>
+              <XCircle className="w-6 h-6" />
               <span className="font-semibold">
                 {validationResult.errors.length} Error{validationResult.errors.length !== 1 ? 's' : ''}
               </span>
@@ -77,7 +78,7 @@ export function ValidationPanel({ projectId, workflow, onNodeClick }: Validation
 
           {validationResult.warnings.length > 0 && (
             <div className="flex items-center gap-2 text-yellow-400">
-              <span className="text-xl">⚠️</span>
+              <AlertTriangle className="w-6 h-6" />
               <span className="font-semibold">
                 {validationResult.warnings.length} Warning{validationResult.warnings.length !== 1 ? 's' : ''}
               </span>
@@ -98,7 +99,7 @@ export function ValidationPanel({ projectId, workflow, onNodeClick }: Validation
           }}
           className="text-gray-400 hover:text-white"
         >
-          {isCollapsed ? '▲' : '▼'}
+          {isCollapsed ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </button>
       </div>
 
@@ -140,8 +141,8 @@ function ValidationIssue({
         isError ? 'bg-red-900/20 border border-red-500/50' : 'bg-yellow-900/20 border border-yellow-500/50'
       }`}
     >
-      <span className="text-xl flex-shrink-0">
-        {isError ? '❌' : '⚠️'}
+      <span className="flex-shrink-0 inline-flex">
+        {isError ? <XCircle className="w-5 h-5 text-red-400" /> : <AlertTriangle className="w-5 h-5 text-yellow-400" />}
       </span>
 
       <div className="flex-1">

@@ -13,36 +13,11 @@ export const statusColors = {
   error: 'bg-red-500',
 } as const;
 
-// Icon mapping
-export const nodeTypeIcons = {
-  agent: '🤖',
-  subagent: '👥',
-  hook: '🪝',
-  mcp: '🔌',
-} as const;
-
-// Subagent type-specific icons
-export const subagentTypeIcons = {
-  'frontend-engineer': '🎨',
-  'backend-engineer': '⚙️',
-  'database-engineer': '🗄️',
-  'ml-engineer': '🤖',
-  'general-purpose': '👤',
-} as const;
-
-// Hook type-specific icons
-export const hookTypeIcons = {
-  'pre-execution': '▶️',
-  'post-execution': '✅',
-  'pre-tool-call': '🔧',
-  'post-tool-call': '🔨',
-  'on-error': '❌',
-} as const;
-
 /**
  * Format duration in milliseconds to human-readable string
  */
 export function formatDuration(ms: number): string {
+  if (ms === 0) return '0s';
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
   return `${(ms / 60000).toFixed(1)}m`;
@@ -61,11 +36,4 @@ export function truncate(text: string, maxLength: number): string {
  */
 export function formatNumber(num: number): string {
   return num.toLocaleString();
-}
-
-/**
- * Get connection status icon
- */
-export function getConnectionStatusIcon(connected: boolean): string {
-  return connected ? '🟢' : '🔴';
 }

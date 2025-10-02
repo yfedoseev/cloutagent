@@ -111,7 +111,7 @@ export function VariablesPanel({ projectId, isOpen, onClose }: VariablesPanelPro
               setEditVariable(undefined);
               setShowCreateModal(true);
             }}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-white"
+            className="btn-primary-coral"
           >
             + New Variable
           </button>
@@ -176,7 +176,7 @@ function FilterButton({ active, onClick, children }: {
       onClick={onClick}
       className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
         active
-          ? 'bg-blue-600 text-white'
+          ? 'btn-primary-coral'
           : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
       }`}
     >
@@ -237,13 +237,13 @@ function VariableCard({ variable, onDelete, onEdit }: {
         <div className="flex gap-2 ml-4">
           <button
             onClick={() => onEdit(variable)}
-            className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm"
+            className="btn-glass text-sm"
           >
             Edit
           </button>
           <button
             onClick={() => onDelete(variable.id)}
-            className="px-3 py-1 bg-red-600 hover:bg-red-500 rounded text-sm"
+            className="btn-destructive text-sm"
           >
             Delete
           </button>

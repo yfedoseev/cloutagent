@@ -196,14 +196,14 @@ export function CreateVariableModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg"
+              className="btn-glass"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+              className="btn-primary-coral"
               disabled={loading}
             >
               {loading ? 'Saving...' : editVariable ? 'Update' : 'Create'}

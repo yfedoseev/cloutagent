@@ -2,40 +2,156 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Apple SF Pro Font Stack */
+/* Inter Font - Langflow-Inspired Typography System */
 @layer base {
   :root {
-    /* SF Pro-like font stack with fallbacks */
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    /* === FONT FAMILIES === */
+    /* Inter - Modern UI typeface used by Langflow */
+    --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+    /* Apply primary font family globally */
+    font-family: var(--font-family-primary);
     line-height: 1.5;
     font-weight: 400;
 
-    color-scheme: dark;
+    color-scheme: light dark;
 
-    /* Apple-inspired Design Tokens */
-    --color-bg-primary: #0a0a0a;
-    --color-bg-secondary: #141414;
-    --color-bg-tertiary: #1a1a1a;
+    /* ===================================== */
+    /* LIGHT MODE COLORS (Default)          */
+    /* ===================================== */
 
-    /* Glass surfaces */
-    --color-glass-bg: rgba(255, 255, 255, 0.05);
-    --color-glass-border: rgba(255, 255, 255, 0.1);
-    --color-glass-hover: rgba(255, 255, 255, 0.08);
+    /* === PRIMARY BACKGROUNDS === */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F9FAFB;
+    --bg-tertiary: #F3F4F6;
+    --bg-canvas: #FAFAFA;
 
-    /* Text colors */
-    --color-text-primary: rgba(255, 255, 255, 0.95);
-    --color-text-secondary: rgba(255, 255, 255, 0.6);
-    --color-text-tertiary: rgba(255, 255, 255, 0.4);
+    /* === BORDERS === */
+    --border-primary: #E5E7EB;
+    --border-secondary: #D1D5DB;
+    --border-hover: #9CA3AF;
 
-    /* Apple System Blue */
-    --color-accent: #007AFF;
-    --color-accent-hover: #0051D5;
+    /* === TEXT === */
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12);
-    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.18), 0 8px 32px rgba(0, 0, 0, 0.15);
-    --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.24), 0 16px 48px rgba(0, 0, 0, 0.16), 0 1px 3px rgba(0, 0, 0, 0.12);
+    /* === PRIMARY ACCENT (Purple like Langflow) === */
+    --accent-primary: #7C3AED;
+    --accent-primary-hover: #6D28D9;
+    --accent-primary-active: #5B21B6;
+
+    /* === SECONDARY ACCENT === */
+    --accent-secondary: #3B82F6;
+    --accent-secondary-hover: #2563EB;
+    --accent-secondary-active: #1D4ED8;
+
+    /* === SEMANTIC COLORS === */
+    --success: #10B981;
+    --warning: #F59E0B;
+    --error: #EF4444;
+    --info: #3B82F6;
+
+    /* === NODE TYPE COLORS === */
+    --node-agent: #7C3AED;
+    --node-subagent: #EC4899;
+    --node-hook: #10B981;
+    --node-mcp: #F59E0B;
+    --node-input: #3B82F6;
+    --node-output: #8B5CF6;
+
+    /* === COMPONENT SPECIFIC === */
+    --input-bg: #FFFFFF;
+    --input-border: #E5E7EB;
+    --card-bg: #FFFFFF;
+    --node-bg: #FFFFFF;
+    --button-primary-bg: #7C3AED;
+    --button-primary-text: #FFFFFF;
+
+    /* === SHADOWS === */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+    --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-button-hover: 0 4px 12px rgba(124, 58, 237, 0.3);
+    --shadow-focus: 0 0 0 3px rgba(124, 58, 237, 0.1);
+
+    /* ===================================== */
+    /* LEGACY GLASSMORPHIC VARIABLES        */
+    /* (Preserved for backward compatibility) */
+    /* ===================================== */
+    --glass-bg: rgba(124, 58, 237, 0.05);
+    --glass-bg-strong: rgba(124, 58, 237, 0.08);
+    --glass-border: rgba(124, 58, 237, 0.1);
+    --glass-hover: rgba(124, 58, 237, 0.08);
+
+    /* Legacy color variables - map to new system */
+    --color-bg-primary: var(--bg-primary);
+    --color-bg-secondary: var(--bg-secondary);
+    --color-bg-tertiary: var(--bg-tertiary);
+    --color-glass-bg: var(--glass-bg);
+    --color-glass-border: var(--glass-border);
+    --color-glass-hover: var(--glass-hover);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-tertiary: var(--text-tertiary);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-error: var(--error);
+    --color-info: var(--info);
+    --text-disabled: rgba(107, 114, 128, 0.5);
+    --bg-panel: var(--bg-secondary);
+    --bg-card: var(--card-bg);
+    --bg-hover: var(--bg-tertiary);
+    --color-accent: var(--accent-primary);
+
+    /* === BORDER RADIUS === */
+    /* Consistent rounded corners inspired by n8n and Apple */
+    --radius-sm: 0.375rem;    /* 6px - Small elements, badges */
+    --radius-md: 0.5rem;      /* 8px - Default, inputs, small cards */
+    --radius-lg: 0.75rem;     /* 12px - Cards, panels (most common) */
+    --radius-xl: 0.875rem;    /* 14px - Buttons, larger cards */
+    --radius-2xl: 1rem;       /* 16px - Large panels, modals */
+    --radius-3xl: 1.5rem;     /* 24px - Extra large surfaces */
+    --radius-full: 9999px;    /* Circular elements, pills */
+
+    /* === TYPOGRAPHY SCALE === */
+    /* Langflow-inspired type system with Inter font */
+
+    /* === HEADINGS === */
+    --font-size-h1: 2rem;            /* 32px - Page titles */
+    --font-size-h2: 1.5rem;          /* 24px - Section headings */
+    --font-size-h3: 1.25rem;         /* 20px - Subsection headings */
+    --font-size-h4: 1.125rem;        /* 18px - Card titles */
+
+    /* === BODY TEXT === */
+    --font-size-base: 0.875rem;      /* 14px - Default body (Langflow standard) */
+    --font-size-sm: 0.8125rem;       /* 13px - Small text */
+    --font-size-xs: 0.75rem;         /* 12px - Captions, labels */
+
+    /* === UI ELEMENTS === */
+    --font-size-button: 0.875rem;    /* 14px - Buttons */
+    --font-size-input: 0.875rem;     /* 14px - Form inputs */
+    --font-size-badge: 0.75rem;      /* 12px - Badges, tags */
+
+    /* === FONT WEIGHTS === */
+    --font-weight-normal: 400;       /* Regular text */
+    --font-weight-medium: 500;       /* Emphasized text */
+    --font-weight-semibold: 600;     /* Headings, buttons */
+    --font-weight-bold: 700;         /* Strong emphasis */
+
+    /* === LINE HEIGHTS === */
+    --line-height-tight: 1.25;       /* Headings */
+    --line-height-normal: 1.5;       /* Body text */
+    --line-height-relaxed: 1.75;     /* Long-form content */
+
+    /* Letter spacing - minimal for Inter */
+    --letter-spacing-tight: -0.01em;
+    --letter-spacing-normal: 0;
+    --letter-spacing-wide: 0.025em;
 
     /* Animation curves */
     --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -49,12 +165,101 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* ===================================== */
+  /* DARK MODE COLORS                      */
+  /* ===================================== */
+  [data-theme="dark"] {
+    color-scheme: dark;
+
+    /* === DARK MODE BACKGROUNDS === */
+    --bg-primary: #0A0A0A;
+    --bg-secondary: #18181B;
+    --bg-tertiary: #27272A;
+    --bg-canvas: #2A2A2A;
+
+    /* === DARK MODE BORDERS === */
+    --border-primary: #3F3F46;
+    --border-secondary: #52525B;
+    --border-hover: #71717A;
+
+    /* === DARK MODE TEXT === */
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+
+    /* === DARK MODE ACCENTS === */
+    --accent-primary: #7C3AED;
+    --accent-primary-hover: #8B5CF6;
+    --accent-primary-active: #6D28D9;
+    --accent-secondary: #3B82F6;
+    --accent-secondary-hover: #2563EB;
+    --accent-secondary-active: #1D4ED8;
+
+    /* === DARK MODE SEMANTIC COLORS === */
+    --success: #10B981;
+    --warning: #F59E0B;
+    --error: #EF4444;
+    --info: #3B82F6;
+
+    /* === DARK MODE NODE TYPE COLORS === */
+    --node-agent: #7C3AED;
+    --node-subagent: #EC4899;
+    --node-hook: #10B981;
+    --node-mcp: #F59E0B;
+    --node-input: #3B82F6;
+    --node-output: #8B5CF6;
+
+    /* === DARK MODE COMPONENTS === */
+    --input-bg: #18181B;
+    --input-border: #3F3F46;
+    --card-bg: #18181B;
+    --node-bg: #0F0F0F;
+    --button-primary-bg: #000000;
+    --button-primary-text: #FFFFFF;
+
+    /* === DARK MODE SHADOWS === */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.6);
+    --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-button-hover: 0 4px 12px rgba(124, 58, 237, 0.4);
+    --shadow-focus: 0 0 0 3px rgba(124, 58, 237, 0.2);
+
+    /* === DARK MODE GLASSMORPHIC === */
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-bg-strong: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-hover: rgba(255, 255, 255, 0.08);
+
+    /* Legacy color variables - map to new dark mode */
+    --color-bg-primary: var(--bg-primary);
+    --color-bg-secondary: var(--bg-secondary);
+    --color-bg-tertiary: var(--bg-tertiary);
+    --color-glass-bg: var(--glass-bg);
+    --color-glass-border: var(--glass-border);
+    --color-glass-hover: var(--glass-hover);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-tertiary: var(--text-tertiary);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-error: var(--error);
+    --color-info: var(--info);
+    --text-disabled: rgba(161, 161, 170, 0.5);
+    --bg-panel: var(--bg-secondary);
+    --bg-card: var(--card-bg);
+    --bg-hover: var(--bg-tertiary);
+    --color-accent: var(--accent-primary);
+  }
+
   body {
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
-    background: linear-gradient(to bottom, #0f172a 0%, #18181b 100%);
-    color: var(--color-text-primary);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
   }
 
   #root {
@@ -97,65 +302,316 @@
     box-shadow: var(--shadow-xl);
   }
 
-  /* Interactive states */
-  .btn-glass {
-    @apply glass rounded-xl px-4 py-2 transition-all duration-200;
-    transition-timing-function: var(--ease-ios);
-  }
+  /* === BUTTON SYSTEM === */
 
-  .btn-glass:hover {
-    background: var(--color-glass-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .btn-glass:active {
-    transform: translateY(0);
-    box-shadow: var(--shadow-sm);
-  }
-
+  /* Primary - Purple accent (Langflow-inspired), highest visual weight */
+  /* Use for: Most important action per screen (Run Workflow, Create Project, Submit) */
   .btn-primary {
-    @apply rounded-xl px-4 py-2 transition-all duration-200;
-    background: linear-gradient(135deg, var(--color-accent) 0%, #0051D5 100%);
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    @apply px-4 py-2 transition-all duration-200;
+    border-radius: var(--radius-xl);
+    background: var(--accent-primary);
+    color: white;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-normal);
+    border: 1px solid var(--accent-primary);
+    box-shadow: var(--shadow-button-hover);
     transition-timing-function: var(--ease-ios);
   }
 
   .btn-primary:hover {
-    background: linear-gradient(135deg, #0051D5 0%, #003D99 100%);
+    background: var(--accent-primary-hover);
+    border-color: var(--accent-primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+    box-shadow: var(--shadow-md);
   }
 
   .btn-primary:active {
+    background: var(--accent-primary-active);
+    border-color: var(--accent-primary-active);
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+    box-shadow: var(--shadow-sm);
   }
 
-  /* Card effects */
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Primary Coral - Legacy alias for compatibility */
+  .btn-primary-coral {
+    @apply btn-primary;
+  }
+
+  /* Secondary - Blue accent, medium visual weight */
+  /* Use for: Secondary important actions (Save Draft, Export) */
+  .btn-secondary {
+    @apply px-4 py-2 transition-all duration-200;
+    border-radius: var(--radius-xl);
+    background: var(--accent-secondary);
+    color: white;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-normal);
+    border: 1px solid var(--accent-secondary);
+    box-shadow: var(--shadow-sm);
+    transition-timing-function: var(--ease-ios);
+  }
+
+  .btn-secondary:hover {
+    background: var(--accent-secondary-hover);
+    border-color: var(--accent-secondary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-secondary:active {
+    background: var(--accent-secondary-active);
+    border-color: var(--accent-secondary-active);
+    transform: translateY(0);
+  }
+
+  .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Glass - Glassmorphic, medium visual weight */
+  /* Use for: Important but not primary actions (Save, Cancel, Settings) */
+  .btn-glass {
+    @apply px-4 py-2 transition-all duration-200;
+    border-radius: var(--radius-xl);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-normal);
+    transition-timing-function: var(--ease-ios);
+  }
+
+  .btn-glass:hover {
+    background: var(--glass-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-glass:active {
+    transform: translateY(0);
+  }
+
+  .btn-glass:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Ghost - Minimal, low visual weight */
+  /* Use for: Less important actions (View, History, Details) */
+  .btn-ghost {
+    @apply px-4 py-2 transition-all duration-200;
+    border-radius: var(--radius-xl);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-normal);
+    border: 1px solid transparent;
+    transition-timing-function: var(--ease-ios);
+  }
+
+  .btn-ghost:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-primary);
+  }
+
+  .btn-ghost:active {
+    background: var(--bg-secondary);
+  }
+
+  .btn-ghost:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Danger - Destructive actions, requires confirmation */
+  /* Use for: Dangerous actions (Delete, Clear, Remove) */
+  .btn-danger {
+    @apply px-4 py-2 transition-all duration-200;
+    border-radius: var(--radius-xl);
+    background: transparent;
+    color: var(--error);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-normal);
+    border: 1px solid transparent;
+    transition-timing-function: var(--ease-ios);
+  }
+
+  .btn-danger:hover {
+    background: color-mix(in srgb, var(--error) 10%, transparent);
+    border-color: color-mix(in srgb, var(--error) 20%, transparent);
+  }
+
+  .btn-danger:active {
+    background: color-mix(in srgb, var(--error) 15%, transparent);
+  }
+
+  .btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Destructive - Legacy alias for compatibility */
+  .btn-destructive {
+    @apply btn-danger;
+  }
+
+  /* === CARD SYSTEM === */
+
+  /* Card - Glass effect card */
   .card-glass {
-    @apply glass rounded-2xl p-6 transition-all duration-300;
+    @apply glass p-6 transition-all duration-300;
+    border-radius: var(--radius-2xl);
+    background: var(--card-bg);
+    border: 1px solid var(--border-primary);
     transition-timing-function: var(--ease-ios);
   }
 
   .card-glass:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(0, 122, 255, 0.5);
+    background: var(--glass-hover);
+    border-color: var(--accent-primary);
     transform: translateY(-4px) scale(1.01);
     box-shadow: var(--shadow-xl);
   }
 
-  /* Focus rings */
-  .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-transparent;
+  /* Card - Solid background */
+  .card {
+    @apply p-6 transition-all duration-300;
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    border: 1px solid var(--border-primary);
+    box-shadow: var(--shadow-sm);
+    transition-timing-function: var(--ease-ios);
   }
 
+  .card:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* === FORM INPUT SYSTEM === */
+
+  /* Base input styles */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="url"],
+  input[type="search"],
+  textarea,
+  select {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-input);
+    transition: all 0.2s var(--ease-ios);
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  input[type="url"]:focus,
+  input[type="search"]:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-focus);
+    background: var(--input-bg);
+  }
+
+  input[type="text"]:disabled,
+  input[type="email"]:disabled,
+  input[type="password"]:disabled,
+  input[type="number"]:disabled,
+  input[type="url"]:disabled,
+  input[type="search"]:disabled,
+  textarea:disabled,
+  select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Input with error state */
+  input[type="text"].error,
+  input[type="email"].error,
+  input[type="password"].error,
+  input[type="number"].error,
+  input[type="url"].error,
+  input[type="search"].error,
+  textarea.error,
+  select.error {
+    border-color: var(--error);
+  }
+
+  input[type="text"].error:focus,
+  input[type="email"].error:focus,
+  input[type="password"].error:focus,
+  input[type="number"].error:focus,
+  input[type="url"].error:focus,
+  input[type="search"].error:focus,
+  textarea.error:focus,
+  select.error:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--error) 10%, transparent);
+  }
+
+  /* Placeholder text */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-tertiary);
+    opacity: 1;
+  }
+
+  /* Focus rings */
+  .focus-ring {
+    outline: none;
+  }
+
+  .focus-ring:focus {
+    box-shadow: var(--shadow-focus);
+  }
+
+  /* === TEXT UTILITIES === */
+
   /* Text gradients */
-  .text-gradient-blue {
-    background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #2563EB 100%);
+  .text-gradient-primary {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-hover) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .text-gradient-secondary {
+    background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent-secondary-hover) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Legacy alias */
+  .text-gradient-blue {
+    @apply text-gradient-secondary;
   }
 
   /* Smooth animations */
@@ -199,5 +655,122 @@
   /* Gradient backgrounds */
   .bg-gradient-radial {
     background: radial-gradient(circle at top, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+  }
+
+  /* === NODE SYSTEM === */
+
+  /* Node Selection Glow */
+  .node-selected {
+    box-shadow:
+      0 0 0 2px var(--accent-primary),
+      0 0 20px color-mix(in srgb, var(--accent-primary) 50%, transparent);
+  }
+
+  /* Connection Handle Hover */
+  .react-flow__handle {
+    transition: all 0.2s ease;
+  }
+
+  .react-flow__handle:hover {
+    transform: scale(1.25);
+  }
+
+  /* === ANIMATIONS === */
+
+  /* Validation Badge Pulse Animation */
+  @keyframes validation-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--error) 70%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 0 8px transparent;
+    }
+  }
+
+  .animate-validation-pulse {
+    animation: validation-pulse 2s infinite;
+  }
+
+  /* Slide-in Animation */
+  @keyframes slide-in-from-top-2 {
+    from {
+      transform: translateY(-8px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .slide-in-from-top-2 {
+    animation: slide-in-from-top-2 0.2s ease-out;
+  }
+
+  .animate-in {
+    animation-fill-mode: both;
+  }
+
+  /* Fade and Zoom In Animation */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes zoom-in {
+    from {
+      transform: scale(0.95);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .fade-in-0 {
+    animation: fade-in 0.15s ease-out;
+  }
+
+  .zoom-in-95 {
+    animation: zoom-in 0.15s ease-out;
+  }
+
+  /* Spinner Animation (for running status) */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Edge flow animation */
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -16;
+    }
+  }
+
+  /* React Flow edge styling */
+  .react-flow__edge-path {
+    stroke-dasharray: 8;
+    animation: flow 1s linear infinite;
+  }
+
+  /* Selected edge enhancement */
+  .react-flow__edge.selected .react-flow__edge-path {
+    stroke-width: 3px;
+    stroke: var(--accent-secondary);
+  }
+
+  /* Edge label styling */
+  .edge-label {
+    font-size: 0.75rem;
+    line-height: 1rem;
   }
 }
