@@ -1,31 +1,42 @@
 {
-  "name": "claude-code-template",
+  "name": "cloutagent",
   "version": "1.0.0",
-  "description": "Template project for Claude Code development",
+  "description": "CloutAgent - Visual workflow builder for Claude Agent SDK",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "echo 'Add your dev server command here'",
-    "build": "echo 'Add your build command here'",
-    "test": "echo 'Add your test command here'",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "format": "prettier --write .",
-    "typecheck": "tsc --noEmit",
-    "python:lint": "ruff check .",
-    "python:format": "black .",
-    "python:format-check": "black --check ."
+    "dev": "concurrently \"pnpm -F @cloutagent/frontend dev\" \"pnpm -F @cloutagent/backend dev\"",
+    "dev:frontend": "pnpm -F @cloutagent/frontend dev",
+    "dev:backend": "pnpm -F @cloutagent/backend dev",
+    "build": "pnpm -r build",
+    "build:frontend": "pnpm -F @cloutagent/frontend build",
+    "build:backend": "pnpm -F @cloutagent/backend build",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.0.0",
-    "prettier": "^3.0.0",
-    "typescript": "^5.0.0"
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": ">=22.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.14.0"
 }
