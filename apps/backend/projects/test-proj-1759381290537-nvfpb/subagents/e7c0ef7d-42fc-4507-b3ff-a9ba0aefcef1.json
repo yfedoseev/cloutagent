@@ -1,0 +1,9 @@
+{
+  "id": "e7c0ef7d-42fc-4507-b3ff-a9ba0aefcef1",
+  "type": "database-engineer",
+  "name": "Advanced DB Designer",
+  "prompt": "Design database schemas",
+  "createdAt": "2025-10-02T05:01:30.537Z",
+  "updatedAt": "2025-10-02T05:01:30.542Z",
+  "timeout": 180000
+}

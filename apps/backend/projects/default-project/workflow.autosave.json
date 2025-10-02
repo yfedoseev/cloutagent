@@ -1,0 +1,35 @@
+{
+  "nodes": [
+    {
+      "id": "agent-1759386978408",
+      "type": "agent",
+      "position": {
+        "x": 389.4443852286075,
+        "y": 327.27632793754714
+      },
+      "data": {
+        "label": "New agent",
+        "position": {
+          "x": 389.4443852286075,
+          "y": 327.27632793754714
+        },
+        "config": {
+          "id": "agent-1759386978408",
+          "name": "Agent",
+          "model": "claude-sonnet-4-5",
+          "systemPrompt": "",
+          "temperature": 1,
+          "maxTokens": 4096,
+          "enabledTools": []
+        }
+      }
+    }
+  ],
+  "edges": [],
+  "viewport": {
+    "x": -75.5389999491224,
+    "y": -277.2770177401652,
+    "zoom": 1.5677180699131927
+  },
+  "version": "1.0.0"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "exec-0",
+  "projectId": "test-proj-1759381229520",
+  "status": "completed",
+  "input": "Test input 0",
+  "startedAt": "2025-10-02T05:00:29.897Z",
+  "completedAt": "2025-10-02T05:00:30.397Z",
+  "duration": 500,
+  "tokenUsage": {
+    "input": 100,
+    "output": 50,
+    "total": 150
+  },
+  "costUSD": 0.001,
+  "steps": [],
+  "retryCount": 0
+}

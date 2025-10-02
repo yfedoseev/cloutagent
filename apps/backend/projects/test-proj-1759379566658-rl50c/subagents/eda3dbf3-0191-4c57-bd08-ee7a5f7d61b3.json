@@ -1,0 +1,9 @@
+{
+  "id": "eda3dbf3-0191-4c57-bd08-ee7a5f7d61b3",
+  "type": "frontend-engineer",
+  "name": "UI Builder",
+  "prompt": "Build React components",
+  "timeout": 60000,
+  "createdAt": "2025-10-02T04:32:46.659Z",
+  "updatedAt": "2025-10-02T04:32:46.659Z"
+}

@@ -1,0 +1,249 @@
+import type { AgentConfig } from '@cloutagent/types';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+import { ClaudeSDKService } from './ClaudeSDKService';
+
+// Mock the Claude Agent SDK
+vi.mock('@anthropic-ai/claude-agent-sdk', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    createAgent: vi.fn(),
+    runAgent: vi.fn(),
+    stopAgent: vi.fn(),
+  })),
+}));
+
+describe('ClaudeSDKService', () => {
+  let service: ClaudeSDKService;
+  let mockAgentConfig: AgentConfig;
+
+  beforeEach(() => {
+    // Set up environment
+    process.env.ANTHROPIC_API_KEY = 'sk-ant-test-key-123';
+
+    service = new ClaudeSDKService();
+
+    mockAgentConfig = {
+      id: 'agent-1',
+      name: 'Test Agent',
+      systemPrompt: 'You are a helpful assistant.',
+      model: 'claude-sonnet-4-5',
+      temperature: 0.7,
+      maxTokens: 4096,
+      enabledTools: [],
+    };
+  });
+
+  describe('createAgent', () => {
+    it('should create agent with correct config', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+
+      expect(agent).toBeDefined();
+      expect(agent.id).toBe(mockAgentConfig.id);
+      expect(agent.name).toBe(mockAgentConfig.name);
+      expect(agent.config).toMatchObject({
+        model: mockAgentConfig.model,
+        systemPrompt: mockAgentConfig.systemPrompt,
+        temperature: mockAgentConfig.temperature,
+        maxTokens: mockAgentConfig.maxTokens,
+      });
+    });
+
+    it('should throw error if API key is missing', async () => {
+      delete process.env.ANTHROPIC_API_KEY;
+      const newService = new ClaudeSDKService();
+
+      await expect(newService.createAgent(mockAgentConfig)).rejects.toThrow(
+        'ANTHROPIC_API_KEY environment variable is required',
+      );
+    });
+  });
+
+  describe('executeAgent', () => {
+    it('should execute agent and return result', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+      const input = 'Hello, how are you?';
+
+      const result = await service.executeAgent(agent, input);
+
+      expect(result).toBeDefined();
+      expect(result.id).toBeDefined();
+      expect(result.status).toBe('completed');
+      expect(result.result).toBeDefined();
+      expect(result.cost).toBeDefined();
+      expect(result.cost.promptTokens).toBeGreaterThan(0);
+      expect(result.cost.completionTokens).toBeGreaterThan(0);
+      expect(result.cost.totalCost).toBeGreaterThan(0);
+      expect(result.duration).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should handle API errors gracefully', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+
+      // Mock SDK to throw error
+      vi.spyOn(service as any, 'executeWithSDK').mockRejectedValueOnce(
+        new Error('API rate limit exceeded'),
+      );
+
+      const result = await service.executeAgent(agent, 'test input');
+
+      expect(result.status).toBe('failed');
+      expect(result.error).toContain('API rate limit exceeded');
+    });
+
+    it('should timeout long executions', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+
+      // Mock SDK to delay
+      vi.spyOn(service as any, 'executeWithSDK').mockImplementationOnce(
+        () => new Promise(resolve => setTimeout(resolve, 150000)),
+      );
+
+      const result = await service.executeAgent(agent, 'test input', {
+        timeout: 1000, // 1 second timeout
+      });
+
+      expect(result.status).toBe('failed');
+      expect(result.error).toContain('timeout');
+    });
+  });
+
+  describe('streamExecution', () => {
+    it('should stream execution with chunks', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+      const chunks: string[] = [];
+      const onChunk = (chunk: string) => chunks.push(chunk);
+
+      const result = await service.streamExecution(
+        agent,
+        'Tell me a story',
+        onChunk,
+      );
+
+      expect(result.status).toBe('completed');
+      expect(chunks.length).toBeGreaterThan(0);
+      expect(chunks.join('')).toBe(result.result);
+    });
+
+    it('should handle streaming errors', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+      const chunks: string[] = [];
+      const onChunk = (chunk: string) => chunks.push(chunk);
+
+      // Mock SDK to throw error during streaming
+      vi.spyOn(service as any, 'streamWithSDK').mockRejectedValueOnce(
+        new Error('Streaming failed'),
+      );
+
+      const result = await service.streamExecution(
+        agent,
+        'test input',
+        onChunk,
+      );
+
+      expect(result.status).toBe('failed');
+      expect(result.error).toContain('Streaming failed');
+    });
+  });
+
+  describe('trackTokenUsage', () => {
+    it('should track token usage', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+      const result = await service.executeAgent(agent, 'Count to 5');
+
+      expect(result.cost.promptTokens).toBeGreaterThan(0);
+      expect(result.cost.completionTokens).toBeGreaterThan(0);
+      expect(result.cost.totalCost).toBeGreaterThan(0);
+    });
+
+    it('should calculate cost correctly', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+      const result = await service.executeAgent(agent, 'Hi');
+
+      // Claude Sonnet 4.5 pricing: $0.003/1K input, $0.015/1K output
+      const expectedCost =
+        (result.cost.promptTokens * 0.003) / 1000 +
+        (result.cost.completionTokens * 0.015) / 1000;
+
+      expect(result.cost.totalCost).toBeCloseTo(expectedCost, 6);
+    });
+  });
+
+  describe('supportToolCalls', () => {
+    it('should support tool calls', async () => {
+      const agentWithTools: AgentConfig = {
+        ...mockAgentConfig,
+        enabledTools: ['web_search', 'calculator'],
+      };
+
+      const agent = await service.createAgent(agentWithTools);
+      const result = await service.executeAgent(agent, 'What is 2 + 2?');
+
+      expect(result.status).toBe('completed');
+      expect(result.result).toBeDefined();
+    });
+
+    it('should handle tool execution errors', async () => {
+      const agentWithTools: AgentConfig = {
+        ...mockAgentConfig,
+        enabledTools: ['invalid_tool'],
+      };
+
+      const agent = await service.createAgent(agentWithTools);
+
+      // Mock SDK to throw tool error
+      vi.spyOn(service as any, 'executeWithSDK').mockRejectedValueOnce(
+        new Error('Tool not found: invalid_tool'),
+      );
+
+      const result = await service.executeAgent(agent, 'Use the invalid tool');
+
+      expect(result.status).toBe('failed');
+      expect(result.error).toContain('Tool not found');
+    });
+  });
+
+  describe('executionOptions', () => {
+    it('should respect timeout option', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+      const startTime = Date.now();
+
+      await service.executeAgent(
+        agent,
+        'test',
+        { timeout: 120000 }, // 120 seconds
+      );
+
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(120000);
+    });
+
+    it('should respect maxTokens option', async () => {
+      const agent = await service.createAgent(mockAgentConfig);
+
+      const result = await service.executeAgent(
+        agent,
+        'Write a very long essay',
+        { maxTokens: 100 },
+      );
+
+      expect(result.cost.completionTokens).toBeLessThanOrEqual(100);
+    });
+
+    it('should use variables in execution', async () => {
+      const agent = await service.createAgent({
+        ...mockAgentConfig,
+        systemPrompt: 'You are {{role}}. Your specialty is {{specialty}}.',
+      });
+
+      const result = await service.executeAgent(agent, 'Introduce yourself', {
+        variables: {
+          role: 'a helpful assistant',
+          specialty: 'programming',
+        },
+      });
+
+      expect(result.status).toBe('completed');
+      expect(result.result).toBeDefined();
+    });
+  });
+});
