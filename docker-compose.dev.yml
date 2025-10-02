@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+      target: builder  # Use builder stage for development
+    command: sh -c "cd /app/apps/backend && pnpm dev"
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:3000
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - MAX_CONCURRENT_EXECUTIONS=3
+      - BACKUP_ENABLED=true
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./packages/types:/app/packages/types
+      - ./tsconfig.json:/app/tsconfig.json
+      - /app/node_modules
+      - /app/apps/backend/node_modules
+      - /app/packages/types/node_modules
+    networks:
+      - cloutagent-dev
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+      target: builder  # Use builder stage for development
+    command: sh -c "cd /app/apps/frontend && pnpm dev --host 0.0.0.0"
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+      - ./packages/types:/app/packages/types
+      - ./tsconfig.json:/app/tsconfig.json
+      - /app/node_modules
+      - /app/apps/frontend/node_modules
+      - /app/packages/types/node_modules
+    networks:
+      - cloutagent-dev
+
+networks:
+  cloutagent-dev:
+    driver: bridge

@@ -34,12 +34,15 @@ class TestExampleSuite:
         assert "test_key" in sample_fixture
         assert sample_fixture["test_key"] == "test_value"
 
-    @pytest.mark.parametrize("input_val,expected", [
-        (1, 2),
-        (2, 4),
-        (3, 6),
-        (0, 0),
-    ])
+    @pytest.mark.parametrize(
+        "input_val,expected",
+        [
+            (1, 2),
+            (2, 4),
+            (3, 6),
+            (0, 0),
+        ],
+    )
     def test_parameterized(self, input_val: int, expected: int) -> None:
         """Test with multiple parameters."""
         # Act
@@ -65,7 +68,7 @@ class TestExampleSuite:
         mock_function.assert_called_once_with("test_arg")
         assert result == "mocked result"
 
-    @patch('builtins.open')
+    @patch("builtins.open")
     def test_with_patch(self, mock_open: MagicMock) -> None:
         """Test using patch decorator."""
         # Arrange
@@ -82,6 +85,7 @@ class TestExampleSuite:
     @pytest.mark.asyncio
     async def test_async_function(self) -> None:
         """Test async functions."""
+
         async def async_function() -> str:
             await asyncio.sleep(0.01)
             return "async result"
@@ -114,6 +118,7 @@ class TestExampleSuite:
     def test_slow_operation(self) -> None:
         """Test marked as slow (can be skipped with -m "not slow")."""
         import time
+
         time.sleep(0.1)
         assert True
 
@@ -169,7 +174,7 @@ def sample_fixture() -> Dict[str, Any]:
     return {
         "test_key": "test_value",
         "numbers": [1, 2, 3],
-        "nested": {"inner": "value"}
+        "nested": {"inner": "value"},
     }
 
 

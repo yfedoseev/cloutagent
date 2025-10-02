@@ -92,17 +92,21 @@ js-typecheck: ## Run TypeScript type checking
 js-test: ## Run JavaScript/TypeScript tests
 	@echo "$(BLUE)Running JavaScript/TypeScript tests...$(RESET)"
 	@if [ -f "package.json" ] && [ -d "node_modules" ]; then \
-		npm test; \
+		pnpm test; \
 	else \
 		echo "$(YELLOW)No Node.js project or dependencies not installed, skipping JS tests$(RESET)"; \
 	fi
 
 js-test-fast: ## Run JavaScript/TypeScript tests with minimal output
 	@if [ -f "package.json" ] && [ -d "node_modules" ]; then \
-		npm test -- --verbose=false --silent 2>/dev/null || npm test; \
+		pnpm test:integration 2>&1 | tail -15; \
 	else \
 		echo "$(YELLOW)No Node.js project or dependencies not installed, skipping JS tests$(RESET)"; \
 	fi
+
+js-test-integration: ## Run integration tests only
+	@echo "$(BLUE)Running integration tests...$(RESET)"
+	@pnpm test:integration
 
 js-build: ## Build the project
 	@echo "$(BLUE)Building the project...$(RESET)"

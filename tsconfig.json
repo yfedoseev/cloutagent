@@ -68,21 +68,8 @@
       "@/pages/*": ["src/pages/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "tests/**/*",
-    "*.config.ts",
-    "*.config.js"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "coverage",
-    "**/*.min.js",
-    ".venv",
-    "__pycache__"
-  ],
+  "include": ["src/**/*", "tests/**/*", "*.config.ts", "*.config.js"],
+  "exclude": ["node_modules", "dist", "build", "coverage", "**/*.min.js", ".venv", "__pycache__"],
   "ts-node": {
     "esm": true,
     "compilerOptions": {

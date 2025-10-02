@@ -17,26 +17,44 @@
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "pnpm -r test",
+    "test:integration": "vitest run tests/integration",
+    "test:integration:watch": "vitest tests/integration",
+    "test:performance": "vitest run tests/integration/performance.test.ts",
+    "test:coverage": "vitest run --coverage",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
+    "@testing-library/react": "16.1.0",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "@vitest/coverage-v8": "^1.0.4",
     "concurrently": "^8.2.2",
+    "dotenv": "^16.3.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^6.1.0",
     "prettier": "^3.1.1",
-    "typescript": "^5.3.3"
+    "supertest": "^6.3.4",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
   },
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=8.0.0"
   },
-  "packageManager": "pnpm@8.14.0"
+  "packageManager": "pnpm@8.14.0",
+  "dependencies": {
+    "isolated-vm": "^6.0.1"
+  }
 }

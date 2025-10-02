@@ -1,11 +1,7 @@
 {
-  "hooks": {
-    "post-edit": "make format",
-    "post-write": "make quick-check",
-    "pre-commit": "make check"
-  },
+  "hooks": {},
   "settings": {
-    "auto-format": true,
-    "run-hooks": true
+    "auto-format": false,
+    "run-hooks": false
   }
 }

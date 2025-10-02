@@ -2,11 +2,13 @@
 .git
 .gitignore
 .gitattributes
+.gitmessage
 
 # Ignore configuration files
 .*ignore
 .eslintrc.*
 .prettierrc.*
+.editorconfig
 
 # Docker
 Dockerfile*
@@ -19,6 +21,7 @@ CONTRIBUTING.md
 SECURITY.md
 LICENSE
 *.md
+docs/
 
 # CI/CD
 .github
@@ -29,7 +32,7 @@ LICENSE
 *.swp
 *.swo
 
-# Dependencies
+# Dependencies (will be installed in container)
 node_modules
 .venv
 venv
@@ -38,22 +41,22 @@ __pycache__
 *.pyo
 *.pyd
 .Python
+uv.lock
 
-# Build artifacts
+# Build artifacts (will be built in container)
 dist
 build
 *.egg-info
+coverage
 .coverage
 .pytest_cache
 .mypy_cache
 .ruff_cache
 
-# Environment
+# Environment files (secrets should use build args)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
 # Logs
 logs
@@ -61,6 +64,7 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # OS
 .DS_Store
@@ -76,8 +80,17 @@ Thumbs.db
 *.temp
 .cache
 
+# Claude Code
+.claude
+.clauderc
+.claude.json
+
+# Runtime data (mounted as volumes)
+projects/
+backups/
+costs/
+
 # Test files (optional - comment out if you want tests in container)
-tests
-test
+tests/
 *test*
 *spec*
