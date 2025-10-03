@@ -3,20 +3,38 @@ import { Handle, Position, NodeProps } from 'reactflow';
 import { Circle, Plug, AlertTriangle, Lock, Unlock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ValidationBadge } from './ValidationBadge';
+import { getNodeConfig } from '../../hooks/useNodeConfig';
 import type { ValidationError } from '@cloutagent/types';
 
 interface MCPNodeData {
-  name: string;
-  serverCommand: string;
-  toolsEnabled: string[];
-  status: 'connected' | 'disconnected' | 'error';
-  credentialsConfigured: boolean;
+  config?: {
+    name?: string;
+    connection?: string;
+    type?: 'url' | 'npx' | 'uvx';
+    enabled?: boolean;
+    tools?: string[];
+  };
+  name?: string;
+  serverCommand?: string;
+  toolsEnabled?: string[];
+  status?: 'connected' | 'disconnected' | 'error';
+  credentialsConfigured?: boolean;
   lastChecked?: Date;
   error?: string;
   validationErrors?: ValidationError[];
 }
 
 export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
+  // Extract config using shared utility
+  const config = getNodeConfig<MCPNodeData>(data, {
+    name: 'MCP Server',
+  });
+  const name = config.name;
+  const serverCommand = config.connection || data.serverCommand;
+  const toolsEnabled = config.tools || data.toolsEnabled;
+  const status = data.status || 'disconnected';
+  const credentialsConfigured = data.credentialsConfigured ?? false;
+
   const statusLabels = {
     connected: 'Connected',
     disconnected: 'Disconnected',
@@ -36,9 +54,10 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
         backgroundColor: 'var(--card-bg)',
         borderColor: selected ? 'var(--accent-primary)' : 'var(--border-primary)',
         boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+        animation: 'nodeAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
       role="article"
-      aria-label={`MCP node: ${data.name}`}
+      aria-label={`MCP node: ${name || 'MCP Server'}`}
     >
       <ValidationBadge
         errors={data.validationErrors?.filter((e) => e.severity === 'error') || []}
@@ -67,16 +86,27 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
         </div>
 
         <div className="flex-1">
-          <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
-            {data.name}
+          <div
+            style={{
+              color: 'var(--text-primary)',
+              fontSize: 'var(--font-size-sm)',
+              fontWeight: 'var(--font-weight-medium)',
+              lineHeight: 'var(--line-height-tight)',
+            }}
+          >
+            {name || 'MCP Server'}
           </div>
           <div className="flex items-center gap-1 mt-1">
             <Circle
-              className={`w-2 h-2 ${data.status === 'connected' ? 'fill-green-500 text-green-500' : 'fill-red-500 text-red-500'}`}
-              aria-label={`${data.status} status`}
+              className={`w-2 h-2 ${status === 'connected' ? 'fill-green-500 text-green-500' : 'fill-red-500 text-red-500'}`}
+              aria-label={`${status} status`}
             />
-            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-              {statusLabels[data.status]}
+            <span style={{
+              color: 'var(--text-secondary)',
+              fontSize: 'var(--font-size-xs)',
+              lineHeight: 'var(--line-height-normal)',
+            }}>
+              {statusLabels[status]}
             </span>
           </div>
         </div>
@@ -90,7 +120,7 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
           color: 'var(--text-secondary)'
         }}
       >
-        {data.serverCommand}
+        {serverCommand || 'Not configured'}
       </div>
 
       {/* Tools count and credentials */}
@@ -98,20 +128,20 @@ export const MCPNode = memo(({ data, selected }: NodeProps<MCPNodeData>) => {
         <div className="flex items-center justify-between text-xs">
           <span style={{ color: 'var(--text-secondary)' }}>Tools:</span>
           <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
-            {data.toolsEnabled?.length ?? 0} enabled
+            {toolsEnabled?.length ?? 0} enabled
           </span>
         </div>
 
         <div className="flex items-center justify-between text-xs">
           <span style={{ color: 'var(--text-secondary)' }}>Credentials:</span>
           <div className="flex items-center gap-1">
-            {data.credentialsConfigured ? (
+            {credentialsConfigured ? (
               <Lock className="w-3 h-3" style={{ color: 'var(--success)' }} />
             ) : (
               <Unlock className="w-3 h-3" style={{ color: 'var(--text-secondary)' }} />
             )}
             <span style={{ color: 'var(--text-primary)' }}>
-              {data.credentialsConfigured ? 'Configured' : 'Not configured'}
+              {credentialsConfigured ? 'Configured' : 'Not configured'}
             </span>
           </div>
         </div>

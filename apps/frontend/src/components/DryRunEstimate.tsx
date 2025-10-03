@@ -42,26 +42,29 @@ export function DryRunEstimate({
   if (!estimate) return null;
 
   return (
-    <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg">
-      <div className="text-sm font-semibold text-gray-300 mb-3">
+    <div className="p-4 rounded-lg" style={{
+      background: 'var(--bg-secondary)',
+      border: '1px solid var(--border-primary)'
+    }}>
+      <div className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
         💡 Workflow Estimate
       </div>
 
       {estimate.valid ? (
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between text-gray-300">
+          <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
             <span>Estimated Cost:</span>
-            <span className="font-mono text-green-400">
+            <span className="font-mono" style={{ color: 'var(--success)' }}>
               ${estimate.estimatedCost.toFixed(4)}
             </span>
           </div>
-          <div className="flex justify-between text-gray-300">
+          <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
             <span>Estimated Tokens:</span>
             <span className="font-mono">
               {estimate.estimatedTokens.toLocaleString()}
             </span>
           </div>
-          <div className="flex justify-between text-gray-300">
+          <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
             <span>Estimated Duration:</span>
             <span className="font-mono">
               {(estimate.estimatedDuration / 1000).toFixed(1)}s
@@ -69,7 +72,7 @@ export function DryRunEstimate({
           </div>
         </div>
       ) : (
-        <div className="text-sm text-red-400">
+        <div className="text-sm" style={{ color: 'var(--error)' }}>
           {estimate.errors.map((err: string, i: number) => (
             <div key={i}>• {err}</div>
           ))}

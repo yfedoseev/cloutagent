@@ -3,11 +3,21 @@ import { Handle, Position, NodeProps } from 'reactflow';
 import { Check, Palette, Settings, Database, Bot, User, Clock, XCircle } from 'lucide-react';
 import { statusColors, formatDuration } from './utils';
 import { ValidationBadge } from './ValidationBadge';
+import { getNodeConfig } from '../../hooks/useNodeConfig';
 import type { ValidationError } from '@cloutagent/types';
 
 interface SubagentNodeData {
-  name: string;
-  type:
+  config?: {
+    name?: string;
+    type?: 'frontend-engineer'
+      | 'backend-engineer'
+      | 'database-engineer'
+      | 'ml-engineer'
+      | 'general-purpose';
+    description?: string;
+  };
+  name?: string;
+  type?:
     | 'frontend-engineer'
     | 'backend-engineer'
     | 'database-engineer'
@@ -31,7 +41,13 @@ const subagentIconMap = {
 
 export const SubagentNode = memo(
   ({ data, selected }: NodeProps<SubagentNodeData>) => {
-    const TypeIcon = data.type ? subagentIconMap[data.type] || User : User;
+    // Extract config using shared utility
+    const config = getNodeConfig<SubagentNodeData>(data, {
+      name: 'Unnamed Subagent',
+    });
+    const { name, type, description } = config;
+
+    const TypeIcon = type ? subagentIconMap[type] || User : User;
 
     return (
       <div
@@ -46,9 +62,10 @@ export const SubagentNode = memo(
           backgroundColor: 'var(--card-bg)',
           borderColor: selected ? 'var(--accent-primary)' : 'var(--border-primary)',
           boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+          animation: 'nodeAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
         role="article"
-        aria-label={`Subagent node: ${data.name || 'Unnamed Subagent'}`}
+        aria-label={`Subagent node: ${name || 'Unnamed Subagent'}`}
       >
         <ValidationBadge
           errors={data.validationErrors?.filter((e) => e.severity === 'error') || []}
@@ -73,15 +90,26 @@ export const SubagentNode = memo(
             className="w-8 h-8 rounded-md flex items-center justify-center"
             style={{ backgroundColor: 'var(--node-subagent)', opacity: 0.1 }}
           >
-            <TypeIcon className="w-5 h-5" style={{ color: 'var(--node-subagent)' }} aria-label={`${data.type || 'generic'} icon`} />
+            <TypeIcon className="w-5 h-5" style={{ color: 'var(--node-subagent)' }} aria-label={`${type || 'generic'} icon`} />
           </div>
 
           <div className="flex-1">
-            <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
-              {data.name || 'Unnamed Subagent'}
+            <div
+              style={{
+                color: 'var(--text-primary)',
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 'var(--font-weight-medium)',
+                lineHeight: 'var(--line-height-tight)',
+              }}
+            >
+              {name || 'Unnamed Subagent'}
             </div>
-            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-              {data.type}
+            <div style={{
+              color: 'var(--text-secondary)',
+              fontSize: 'var(--font-size-xs)',
+              lineHeight: 'var(--line-height-normal)',
+            }}>
+              {type}
             </div>
           </div>
 
@@ -96,7 +124,7 @@ export const SubagentNode = memo(
         </div>
 
         {/* Description */}
-        {data.description && (
+        {description && (
           <div
             className="mb-2 p-2 rounded text-xs"
             style={{
@@ -104,7 +132,7 @@ export const SubagentNode = memo(
               color: 'var(--text-secondary)'
             }}
           >
-            {data.description}
+            {description}
           </div>
         )}
 

@@ -55,20 +55,31 @@ export function ValidationPanel({ projectId, workflow, onNodeClick }: Validation
   const totalIssues = validationResult.errors.length + validationResult.warnings.length;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 shadow-2xl z-40">
+    <div className="fixed bottom-0 left-0 right-0 z-40" style={{
+      background: 'var(--glass-bg)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderTop: '1px solid var(--border-primary)',
+      boxShadow: 'var(--shadow-lg)'
+    }}>
       {/* Header */}
       <div
-        className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-750"
+        className="flex items-center justify-between px-4 py-2 cursor-pointer transition-colors"
+        style={{
+          color: 'var(--text-primary)'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <div className="flex items-center gap-3">
           {validationResult.valid ? (
-            <div className="flex items-center gap-2 text-green-400">
+            <div className="flex items-center gap-2" style={{ color: 'var(--success)' }}>
               <CheckCircle className="w-6 h-6" />
               <span className="font-semibold">Workflow Valid</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-red-400">
+            <div className="flex items-center gap-2" style={{ color: 'var(--error)' }}>
               <XCircle className="w-6 h-6" />
               <span className="font-semibold">
                 {validationResult.errors.length} Error{validationResult.errors.length !== 1 ? 's' : ''}
@@ -77,7 +88,7 @@ export function ValidationPanel({ projectId, workflow, onNodeClick }: Validation
           )}
 
           {validationResult.warnings.length > 0 && (
-            <div className="flex items-center gap-2 text-yellow-400">
+            <div className="flex items-center gap-2" style={{ color: 'var(--warning)' }}>
               <AlertTriangle className="w-6 h-6" />
               <span className="font-semibold">
                 {validationResult.warnings.length} Warning{validationResult.warnings.length !== 1 ? 's' : ''}
@@ -86,7 +97,7 @@ export function ValidationPanel({ projectId, workflow, onNodeClick }: Validation
           )}
 
           {loading && (
-            <div className="text-sm text-gray-400">
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               Validating...
             </div>
           )}
@@ -97,7 +108,10 @@ export function ValidationPanel({ projectId, workflow, onNodeClick }: Validation
             e.stopPropagation();
             setIsCollapsed(!isCollapsed);
           }}
-          className="text-gray-400 hover:text-white"
+          className="transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
         >
           {isCollapsed ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </button>
@@ -137,37 +151,44 @@ function ValidationIssue({
 
   return (
     <div
-      className={`flex items-start gap-3 p-3 rounded-lg mb-2 ${
-        isError ? 'bg-red-900/20 border border-red-500/50' : 'bg-yellow-900/20 border border-yellow-500/50'
-      }`}
+      className="flex items-start gap-3 p-3 rounded-lg mb-2"
+      style={{
+        background: isError ? 'var(--error-bg)' : 'var(--warning-bg)',
+        border: `1px solid ${isError ? 'var(--error)' : 'var(--warning)'}`,
+        borderColor: isError ? 'var(--error)' : 'var(--warning)',
+        opacity: 0.9
+      }}
     >
       <span className="flex-shrink-0 inline-flex">
-        {isError ? <XCircle className="w-5 h-5 text-red-400" /> : <AlertTriangle className="w-5 h-5 text-yellow-400" />}
+        {isError ? (
+          <XCircle className="w-5 h-5" style={{ color: 'var(--error)' }} />
+        ) : (
+          <AlertTriangle className="w-5 h-5" style={{ color: 'var(--warning)' }} />
+        )}
       </span>
 
       <div className="flex-1">
-        <div className={`font-medium ${isError ? 'text-red-300' : 'text-yellow-300'}`}>
+        <div className="font-medium" style={{ color: isError ? 'var(--error)' : 'var(--warning)' }}>
           {issue.message}
         </div>
 
         {issue.nodeId && (
           <button
             onClick={() => onNodeClick?.(issue.nodeId!)}
-            className={`mt-1 text-sm underline ${
-              isError ? 'text-red-400 hover:text-red-300' : 'text-yellow-400 hover:text-yellow-300'
-            }`}
+            className="mt-1 text-sm underline transition-opacity hover:opacity-80"
+            style={{ color: isError ? 'var(--error)' : 'var(--warning)' }}
           >
             View node: {issue.nodeId}
           </button>
         )}
 
         {issue.nodeIds && issue.nodeIds.length > 0 && (
-          <div className="mt-1 text-sm">
+          <div className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
             Affected nodes: {issue.nodeIds.join(', ')}
           </div>
         )}
 
-        <div className="mt-1 text-xs text-gray-400">
+        <div className="mt-1 text-xs" style={{ color: 'var(--text-tertiary)' }}>
           Type: {issue.type}
         </div>
       </div>

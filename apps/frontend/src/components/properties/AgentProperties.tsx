@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { PropertyEditorProps, ValidationErrors } from './types';
+import { PropertyEditorProps } from './types';
+import { usePropertyForm } from '../../hooks/usePropertyForm';
 import {
   TextInput,
   Select,
@@ -41,77 +41,50 @@ const MODEL_OPTIONS = [
 
 const AVAILABLE_TOOLS = ['bash', 'computer', 'text-editor'];
 
+const validateAgentForm = (data: AgentFormData): Record<string, string> => {
+  const errors: Record<string, string> = {};
+
+  if (!data.name.trim()) {
+    errors.name = 'Name is required';
+  }
+
+  if (data.temperature < 0 || data.temperature > 1) {
+    errors.temperature = 'Temperature must be between 0 and 1';
+  }
+
+  if (data.maxTokens < 1 || data.maxTokens > 200000) {
+    errors.maxTokens = 'Max tokens must be between 1 and 200,000';
+  }
+
+  if (data.maxCost !== undefined && data.maxCost < 0) {
+    errors.maxCost = 'Max cost must be positive';
+  }
+
+  return errors;
+};
+
 export function AgentProperties({ node, onChange }: PropertyEditorProps) {
-  const [formData, setFormData] = useState<AgentFormData>({
-    name: (node.data as any).config?.name || 'Agent',
-    model: (node.data as any).config?.model || 'claude-sonnet-4-5',
-    systemPrompt: (node.data as any).config?.systemPrompt || '',
-    temperature: (node.data as any).config?.temperature ?? 1.0,
-    maxTokens: (node.data as any).config?.maxTokens || 4096,
-    maxCost: (node.data as any).config?.maxCost,
-    timeout: (node.data as any).config?.timeout,
-    enabledTools: (node.data as any).config?.enabledTools || [],
+  const { formData, updateField, errors } = usePropertyForm<AgentFormData>({
+    node,
+    defaults: {
+      name: 'Claude Agent',
+      model: 'claude-sonnet-4-5',
+      systemPrompt: '',
+      temperature: 1.0,
+      maxTokens: 4096,
+      maxCost: undefined,
+      timeout: undefined,
+      enabledTools: [],
+    },
+    onChange,
+    validate: validateAgentForm,
   });
 
-  const [errors, setErrors] = useState<ValidationErrors>({});
-
-  // Validation
-  const validate = (): boolean => {
-    const newErrors: ValidationErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-
-    if (formData.temperature < 0 || formData.temperature > 1) {
-      newErrors.temperature = 'Temperature must be between 0 and 1';
-    }
-
-    if (formData.maxTokens < 1 || formData.maxTokens > 200000) {
-      newErrors.maxTokens = 'Max tokens must be between 1 and 200,000';
-    }
-
-    if (formData.maxCost !== undefined && formData.maxCost < 0) {
-      newErrors.maxCost = 'Max cost must be positive';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Auto-save with debounce
-  useEffect(() => {
-    if (!validate()) return;
-
-    const timer = setTimeout(() => {
-      onChange({
-        data: {
-          ...node.data,
-          config: {
-            id: (node.data as any).config?.id || node.id,
-            ...formData,
-          },
-        },
-      });
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [formData]);
-
-  const updateField = <K extends keyof AgentFormData>(
-    field: K,
-    value: AgentFormData[K],
-  ) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   const toggleTool = (tool: string) => {
-    setFormData(prev => ({
-      ...prev,
-      enabledTools: prev.enabledTools.includes(tool)
-        ? prev.enabledTools.filter(t => t !== tool)
-        : [...prev.enabledTools, tool],
-    }));
+    const newTools = formData.enabledTools.includes(tool)
+      ? formData.enabledTools.filter(t => t !== tool)
+      : [...formData.enabledTools, tool];
+    updateField('enabledTools', newTools);
   };
 
   const calculateCost = (): string => {
@@ -191,7 +164,8 @@ export function AgentProperties({ node, onChange }: PropertyEditorProps) {
           <div>
             <label
               htmlFor="input-max-cost-(usd)---optional"
-              className="block text-sm font-medium text-gray-300 mb-1"
+              className="block text-sm font-medium mb-1"
+              style={{ color: 'var(--text-primary)' }}
             >
               Max Cost (USD) - Optional
             </label>
@@ -207,15 +181,18 @@ export function AgentProperties({ node, onChange }: PropertyEditorProps) {
               }
               min={0}
               step={0.01}
-              className={`w-full px-3 py-2 bg-gray-700 border rounded text-white ${
-                errors.maxCost ? 'border-red-500' : 'border-gray-600'
-              }`}
+              className="w-full px-3 py-2 border rounded"
+              style={{
+                background: 'var(--input-bg)',
+                borderColor: errors.maxCost ? 'var(--error)' : 'var(--input-border)',
+                color: 'var(--text-primary)',
+              }}
               placeholder="No limit"
             />
             {errors.maxCost && (
-              <p className="text-xs text-red-400 mt-1">{errors.maxCost}</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{errors.maxCost}</p>
             )}
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
               Stop execution when cost exceeds this amount
             </p>
           </div>
@@ -223,7 +200,8 @@ export function AgentProperties({ node, onChange }: PropertyEditorProps) {
           <div>
             <label
               htmlFor="input-timeout-(seconds)---optional"
-              className="block text-sm font-medium text-gray-300 mb-1"
+              className="block text-sm font-medium mb-1"
+              style={{ color: 'var(--text-primary)' }}
             >
               Timeout (seconds) - Optional
             </label>
@@ -241,10 +219,15 @@ export function AgentProperties({ node, onChange }: PropertyEditorProps) {
               }
               min={1}
               max={600}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+              className="w-full px-3 py-2 border rounded"
+              style={{
+                background: 'var(--input-bg)',
+                borderColor: 'var(--input-border)',
+                color: 'var(--text-primary)',
+              }}
               placeholder="No timeout"
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
               Maximum execution time (1-600 seconds)
             </p>
           </div>
@@ -268,17 +251,20 @@ export function AgentProperties({ node, onChange }: PropertyEditorProps) {
       </section>
 
       {/* Cost Estimate */}
-      <section className="p-3 bg-gray-700 rounded">
-        <h4 className="text-sm font-semibold text-gray-300 mb-2">
+      <section className="p-3 rounded" style={{
+        background: 'var(--bg-tertiary)',
+        border: '1px solid var(--border-primary)',
+      }}>
+        <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
           Estimated Cost per Execution
         </h4>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
           Based on {formData.maxTokens.toLocaleString()} max tokens:
         </p>
-        <p className="text-lg font-bold text-green-400 mt-1">
+        <p className="text-lg font-bold mt-1" style={{ color: 'var(--success)' }}>
           ~${calculateCost()}
         </p>
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
           Actual cost varies based on usage
         </p>
       </section>

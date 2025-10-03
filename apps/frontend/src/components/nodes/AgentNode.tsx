@@ -3,9 +3,28 @@ import { Handle, Position, NodeProps } from 'reactflow';
 import { Bot } from 'lucide-react';
 import { statusColors } from './utils';
 import { ValidationBadge } from './ValidationBadge';
+import { getNodeConfig } from '../../hooks/useNodeConfig';
 import type { ValidationError } from '@cloutagent/types';
 
+// Format model name for display
+const formatModelName = (model: string): string => {
+  const modelMap: Record<string, string> = {
+    'claude-sonnet-4-5': 'Sonnet 4.5',
+    'claude-opus-4': 'Opus 4',
+    'claude-haiku-3.5': 'Haiku 3.5',
+    'claude-haiku-3-5': 'Haiku 3.5',
+  };
+  return modelMap[model] || model;
+};
+
 interface AgentNodeData {
+  config?: {
+    name?: string;
+    model?: string;
+    systemPrompt?: string;
+    temperature?: number;
+    maxTokens?: number;
+  };
   name?: string;
   model?: string;
   systemPrompt?: string;
@@ -19,6 +38,13 @@ interface AgentNodeData {
 
 export const AgentNode = memo(
   ({ data, selected }: NodeProps<AgentNodeData>) => {
+    // Extract config using shared utility
+    const config = getNodeConfig<AgentNodeData>(data, {
+      name: 'Claude Agent',
+      model: 'claude-sonnet-4-5',
+    });
+    const { name, model } = config;
+
     const totalTokens = data.tokenUsage
       ? data.tokenUsage.input + data.tokenUsage.output
       : 0;
@@ -39,9 +65,10 @@ export const AgentNode = memo(
           backgroundColor: 'var(--card-bg)',
           borderColor: selected ? 'var(--accent-primary)' : 'var(--border-primary)',
           boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+          animation: 'nodeAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
         role="article"
-        aria-label={`Agent node: ${data.name || 'Unnamed Agent'}`}
+        aria-label={`Agent node: ${name || 'Claude Agent'}`}
       >
         {/* Validation Badge - only render when errors or warnings exist */}
         {(errors.length > 0 || warnings.length > 0) && (
@@ -70,11 +97,22 @@ export const AgentNode = memo(
           </div>
 
           <div className="flex-1">
-            <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
-              {data.name || 'Unnamed Agent'}
+            <div
+              style={{
+                color: 'var(--text-primary)',
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 'var(--font-weight-medium)',
+                lineHeight: 'var(--line-height-tight)',
+              }}
+            >
+              {name || 'Claude Agent'}
             </div>
-            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-              {data.model || 'No model'}
+            <div style={{
+              color: 'var(--text-secondary)',
+              fontSize: 'var(--font-size-xs)',
+              lineHeight: 'var(--line-height-normal)',
+            }}>
+              {model ? formatModelName(model) : 'Sonnet 4.5'}
             </div>
           </div>
 

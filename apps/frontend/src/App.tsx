@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Rocket } from 'lucide-react';
 import { ProjectList } from './components/ProjectList';
 import { FlowCanvas } from './components/FlowCanvas';
@@ -14,6 +15,7 @@ function App() {
   );
   const [view, setView] = useState<'list' | 'canvas'>('list');
   const [showVariables, setShowVariables] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const handleCreateProject = () => {
     console.log('Create new project clicked');
@@ -38,18 +40,22 @@ function App() {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-primary)' }}>
         {/* Navigation Bar */}
-        <div className="sticky top-0 z-50 px-6 py-3 flex items-center justify-between" style={{
+        <div className="sticky top-0 z-50 px-6 py-3 flex items-center justify-between gap-4" style={{
           background: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border-primary)'
         }}>
           <button
             onClick={() => setView('list')}
-            className="btn-secondary font-medium flex items-center gap-2 group"
+            className="btn-ghost font-medium flex items-center gap-2 group flex-shrink-0"
           >
             <span className="transition-transform group-hover:-translate-x-1">←</span>
             <span>Back to Projects</span>
           </button>
-          <div className="flex items-center gap-3">
+
+          {/* Workflow Controls - will be populated by FlowCanvas */}
+          <div id="workflow-toolbar" className="flex items-center gap-2 flex-1 justify-center" />
+
+          <div className="flex items-center gap-3 flex-shrink-0">
             <ThemeToggle />
             <button
               onClick={() => setShowVariables(true)}
@@ -58,13 +64,18 @@ function App() {
               <span>📦</span>
               <span>Variables</span>
             </button>
-            <div className="rounded-xl px-4 py-2" style={{
+            <div className="flex flex-col gap-1 rounded-xl px-4 py-2" style={{
               background: 'var(--bg-tertiary)',
               border: '1px solid var(--border-secondary)'
             }}>
               <div className="font-semibold text-sm tracking-tight" style={{ color: 'var(--text-primary)' }}>
                 {selectedProjectId}
               </div>
+              {lastSaved && (
+                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  Saved {lastSaved.toLocaleTimeString()}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -72,7 +83,51 @@ function App() {
           <NodePalette />
           <div className="flex-1">
             <ReactFlowProvider>
-              <FlowCanvas />
+              <FlowCanvas
+                onSave={setLastSaved}
+                renderToolbar={(controls) => {
+                  const toolbarElement = document.getElementById('workflow-toolbar');
+                  if (!toolbarElement) return null;
+
+                  return createPortal(
+                    <>
+                      <button
+                        onClick={controls.handleRunWorkflow}
+                        disabled={controls.isExecuting || controls.nodes.length === 0}
+                        className="btn-primary-coral disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {controls.isExecuting ? 'Starting...' : controls.testMode ? 'Test Run' : 'Run Workflow'}
+                      </button>
+                      <button
+                        onClick={controls.handleSave}
+                        disabled={controls.isSaving}
+                        className="btn-glass disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {controls.isSaving ? 'Saving...' : 'Save'}
+                      </button>
+                      <button
+                        onClick={controls.handleResetView}
+                        className="btn-ghost"
+                      >
+                        Reset View
+                      </button>
+                      <button
+                        onClick={() => controls.setShowHistory(true)}
+                        className="btn-ghost"
+                      >
+                        History
+                      </button>
+                      <button
+                        onClick={controls.handleClearCanvas}
+                        className="btn-destructive"
+                      >
+                        Clear Canvas
+                      </button>
+                    </>,
+                    toolbarElement
+                  );
+                }}
+              />
               <PropertyPanel />
             </ReactFlowProvider>
           </div>
@@ -90,18 +145,20 @@ function App() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      {/* Premium Demo Banner */}
+      {/* Demo Banner */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-radial"></div>
-        <div className="glass-strong border-b border-white/10 p-6 text-center relative">
+        <div className="p-6 text-center relative" style={{
+          background: 'var(--bg-secondary)',
+          borderBottom: '1px solid var(--border-primary)'
+        }}>
           <button
             onClick={handleDemoMode}
-            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-apple rounded-2xl font-semibold text-lg text-white shadow-apple-button hover:shadow-apple-button-hover transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+            className="btn-primary group relative inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
           >
             <Rocket className="w-6 h-6 group-hover:scale-110 transition-transform" />
             <span className="tracking-tight">Open Visual Workflow Builder</span>
           </button>
-          <p className="text-white/60 text-sm mt-3 font-medium">
+          <p className="text-sm mt-3 font-medium" style={{ color: 'var(--text-secondary)' }}>
             Skip project setup and explore the canvas
           </p>
         </div>

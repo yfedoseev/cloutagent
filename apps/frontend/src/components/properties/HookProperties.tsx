@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { PropertyEditorProps, ValidationErrors } from './types';
+import { PropertyEditorProps } from './types';
+import { usePropertyForm } from '../../hooks/usePropertyForm';
 import { TextInput, Select, Checkbox, SectionHeader } from './FormComponents';
 import type { HookType } from '@cloutagent/types';
 
@@ -42,51 +42,27 @@ const HOOK_TYPES: { value: HookType; label: string; description: string }[] = [
   },
 ];
 
+const validateHookForm = (data: HookFormData): Record<string, string> => {
+  const errors: Record<string, string> = {};
+
+  if (!data.name.trim()) {
+    errors.name = 'Name is required';
+  }
+
+  return errors;
+};
+
 export function HookProperties({ node, onChange }: PropertyEditorProps) {
-  const [formData, setFormData] = useState<HookFormData>({
-    name: (node.data as any).config?.name || 'Hook',
-    type: (node.data as any).config?.type || 'pre-execution',
-    enabled: (node.data as any).config?.enabled ?? true,
+  const { formData, updateField, errors } = usePropertyForm<HookFormData>({
+    node,
+    defaults: {
+      name: 'Hook',
+      type: 'pre-execution' as HookType,
+      enabled: true,
+    },
+    onChange,
+    validate: validateHookForm,
   });
-
-  const [errors, setErrors] = useState<ValidationErrors>({});
-
-  const validate = (): boolean => {
-    const newErrors: ValidationErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  useEffect(() => {
-    if (!validate()) return;
-
-    const timer = setTimeout(() => {
-      onChange({
-        data: {
-          ...node.data,
-          enabled: formData.enabled,
-          config: {
-            id: (node.data as any).config?.id || node.id,
-            ...formData,
-          },
-        },
-      });
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [formData]);
-
-  const updateField = <K extends keyof HookFormData>(
-    field: K,
-    value: HookFormData[K],
-  ) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
 
   const getTypeDescription = (type: HookType): string => {
     return HOOK_TYPES.find(t => t.value === type)?.description || '';

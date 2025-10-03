@@ -2,19 +2,31 @@ import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
 import { Check, Play, CheckCircle2, Wrench, Hammer, XCircle, Circle } from 'lucide-react';
 import { ValidationBadge } from './ValidationBadge';
+import { getNodeConfig } from '../../hooks/useNodeConfig';
 import type { ValidationError } from '@cloutagent/types';
 
 interface HookNodeData {
-  name: string;
-  type:
+  config?: {
+    name?: string;
+    type?: 'pre-execution'
+      | 'post-execution'
+      | 'pre-tool-call'
+      | 'post-tool-call'
+      | 'on-error';
+    enabled?: boolean;
+    condition?: string;
+    actionType?: 'log' | 'notify' | 'transform' | 'validate';
+  };
+  name?: string;
+  type?:
     | 'pre-execution'
     | 'post-execution'
     | 'pre-tool-call'
     | 'post-tool-call'
     | 'on-error';
-  enabled: boolean;
+  enabled?: boolean;
   condition?: string;
-  actionType: 'log' | 'notify' | 'transform' | 'validate';
+  actionType?: 'log' | 'notify' | 'transform' | 'validate';
   lastExecution?: {
     timestamp: Date;
     result: 'success' | 'failure';
@@ -24,6 +36,13 @@ interface HookNodeData {
 }
 
 export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
+  // Extract config using shared utility
+  const config = getNodeConfig<HookNodeData>(data, {
+    name: 'Unnamed Hook',
+    enabled: true,
+  });
+  const { name, type, enabled, actionType, condition } = config;
+
   const hookIconMap = {
     'pre-execution': Play,
     'post-execution': CheckCircle2,
@@ -32,7 +51,7 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
     'on-error': XCircle,
   } as const;
 
-  const TypeIcon = data.type ? hookIconMap[data.type] : Play;
+  const TypeIcon = type ? hookIconMap[type] : Play;
 
   return (
     <div
@@ -47,9 +66,10 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
         backgroundColor: 'var(--card-bg)',
         borderColor: selected ? 'var(--accent-primary)' : 'var(--border-primary)',
         boxShadow: selected ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+        animation: 'nodeAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
       role="article"
-      aria-label={`Hook node: ${data.name || 'Unnamed Hook'}`}
+      aria-label={`Hook node: ${name || 'Unnamed Hook'}`}
     >
       <ValidationBadge
         errors={data.validationErrors?.filter((e) => e.severity === 'error') || []}
@@ -74,23 +94,34 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
           className="w-8 h-8 rounded-md flex items-center justify-center"
           style={{ backgroundColor: 'var(--node-hook)', opacity: 0.1 }}
         >
-          <TypeIcon className="w-5 h-5" style={{ color: 'var(--node-hook)' }} aria-label={`${data.type} icon`} />
+          <TypeIcon className="w-5 h-5" style={{ color: 'var(--node-hook)' }} aria-label={`${type} icon`} />
         </div>
 
         <div className="flex-1">
-          <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
-            {data.name || 'Unnamed Hook'}
+          <div
+            style={{
+              color: 'var(--text-primary)',
+              fontSize: 'var(--font-size-sm)',
+              fontWeight: 'var(--font-weight-medium)',
+              lineHeight: 'var(--line-height-tight)',
+            }}
+          >
+            {name || 'Unnamed Hook'}
           </div>
-          <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-            {data.type}
+          <div style={{
+            color: 'var(--text-secondary)',
+            fontSize: 'var(--font-size-xs)',
+            lineHeight: 'var(--line-height-normal)',
+          }}>
+            {type}
           </div>
         </div>
 
         {/* Enabled/Disabled indicator */}
         <div className="flex items-center gap-1">
           <Circle
-            className={`w-2 h-2 ${data.enabled ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-gray-400'}`}
-            aria-label={data.enabled ? 'Enabled' : 'Disabled'}
+            className={`w-2 h-2 ${enabled ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-gray-400'}`}
+            aria-label={enabled ? 'Enabled' : 'Disabled'}
           />
         </div>
       </div>
@@ -99,12 +130,12 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
       <div className="mb-2 flex items-center justify-between text-xs">
         <span style={{ color: 'var(--text-secondary)' }}>Action:</span>
         <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
-          {data.actionType}
+          {actionType}
         </span>
       </div>
 
       {/* Condition */}
-      {data.condition && (
+      {condition && (
         <div className="mb-2">
           <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
             Condition:
@@ -116,7 +147,7 @@ export const HookNode = memo(({ data, selected }: NodeProps<HookNodeData>) => {
               color: 'var(--text-secondary)'
             }}
           >
-            {data.condition}
+            {condition}
           </div>
         </div>
       )}

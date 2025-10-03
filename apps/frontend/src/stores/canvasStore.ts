@@ -20,11 +20,29 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   actions: {
     addNode: (type: NodeType, position: { x: number; y: number }) => {
+      const nodeId = `${type}-${Date.now()}`;
+
+      // Set default config based on node type
+      let defaultConfig: any = {};
+      if (type === 'agent') {
+        defaultConfig = {
+          id: nodeId,
+          name: 'Claude Agent',
+          model: 'claude-sonnet-4-5',
+          systemPrompt: '',
+          temperature: 1.0,
+          maxTokens: 4096,
+          enabledTools: [],
+        };
+      } else {
+        defaultConfig = { id: nodeId, name: `New ${type}` };
+      }
+
       const newNode: Node = {
-        id: `${type}-${Date.now()}`,
+        id: nodeId,
         type,
         position,
-        data: { label: `New ${type}` },
+        data: { config: defaultConfig },
       };
       set(state => ({ nodes: [...state.nodes, newNode] }));
     },

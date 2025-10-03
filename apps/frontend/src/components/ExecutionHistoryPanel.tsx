@@ -56,21 +56,38 @@ export function ExecutionHistoryPanel({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-lg shadow-2xl w-[900px] h-[700px] flex flex-col">
+    <div className="fixed inset-0 flex items-center justify-center z-50" style={{
+      background: 'rgba(0, 0, 0, 0.6)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)'
+    }}>
+      <div className="rounded-lg w-[900px] h-[700px] flex flex-col" style={{
+        background: 'var(--glass-bg)',
+        backdropFilter: 'blur(30px)',
+        WebkitBackdropFilter: 'blur(30px)',
+        border: '1px solid var(--border-primary)',
+        boxShadow: 'var(--shadow-xl)'
+      }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold text-white">Execution History</h2>
+        <div className="flex items-center justify-between px-6 py-4" style={{
+          borderBottom: '1px solid var(--border-primary)'
+        }}>
+          <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Execution History</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl"
+            className="text-xl transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
           >
             ✕
           </button>
         </div>
 
         {/* Filters */}
-        <div className="flex gap-2 px-6 py-3 border-b border-gray-700">
+        <div className="flex gap-2 px-6 py-3" style={{
+          borderBottom: '1px solid var(--border-primary)'
+        }}>
           <FilterButton
             active={filter === 'all'}
             onClick={() => setFilter('all')}
@@ -95,12 +112,12 @@ export function ExecutionHistoryPanel({
         <div className="flex-1 overflow-auto p-6">
           {loading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="text-gray-400">Loading executions...</div>
+              <div style={{ color: 'var(--text-secondary)' }}>Loading executions...</div>
             </div>
           ) : executions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <div className="flex flex-col items-center justify-center h-full" style={{ color: 'var(--text-secondary)' }}>
               <div className="text-4xl mb-4">📋</div>
-              <div className="text-lg font-semibold mb-2">
+              <div className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                 No executions found
               </div>
               <div className="text-sm">
@@ -136,11 +153,20 @@ function FilterButton({ active, onClick, children }: FilterButtonProps) {
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-        active
-          ? 'bg-blue-600 text-white'
-          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-      }`}
+      className="px-3 py-1 rounded-lg text-sm font-medium transition-all"
+      style={active ? {
+        background: 'var(--accent-primary)',
+        color: 'white'
+      } : {
+        background: 'var(--bg-tertiary)',
+        color: 'var(--text-secondary)'
+      }}
+      onMouseEnter={(e) => {
+        if (!active) e.currentTarget.style.background = 'var(--bg-secondary)';
+      }}
+      onMouseLeave={(e) => {
+        if (!active) e.currentTarget.style.background = 'var(--bg-tertiary)';
+      }}
     >
       {children}
     </button>

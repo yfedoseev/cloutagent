@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { PropertyEditorProps, ValidationErrors } from './types';
+import { PropertyEditorProps } from './types';
+import { usePropertyForm } from '../../hooks/usePropertyForm';
 import {
   TextInput,
   Select,
@@ -32,74 +32,48 @@ const SUBAGENT_TYPES = [
 
 const AVAILABLE_TOOLS = ['bash', 'text-editor', 'computer'];
 
+const validateSubagentForm = (data: SubagentFormData): Record<string, string> => {
+  const errors: Record<string, string> = {};
+
+  if (!data.name.trim()) {
+    errors.name = 'Name is required';
+  }
+
+  if (!data.prompt.trim()) {
+    errors.prompt = 'Prompt is required';
+  }
+
+  if (
+    data.parallel &&
+    data.maxParallelInstances !== undefined &&
+    data.maxParallelInstances < 1
+  ) {
+    errors.maxParallelInstances = 'Max parallel instances must be at least 1';
+  }
+
+  return errors;
+};
+
 export function SubagentProperties({ node, onChange }: PropertyEditorProps) {
-  const [formData, setFormData] = useState<SubagentFormData>({
-    name: (node.data as any).config?.name || 'Subagent',
-    type: (node.data as any).config?.type || 'frontend-engineer',
-    prompt: (node.data as any).config?.prompt || '',
-    tools: (node.data as any).config?.tools || [],
-    parallel: (node.data as any).config?.parallel || false,
-    maxParallelInstances: (node.data as any).config?.maxParallelInstances,
+  const { formData, updateField, errors } = usePropertyForm<SubagentFormData>({
+    node,
+    defaults: {
+      name: 'Subagent',
+      type: 'frontend-engineer',
+      prompt: '',
+      tools: [],
+      parallel: false,
+      maxParallelInstances: undefined,
+    },
+    onChange,
+    validate: validateSubagentForm,
   });
 
-  const [errors, setErrors] = useState<ValidationErrors>({});
-
-  const validate = (): boolean => {
-    const newErrors: ValidationErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-
-    if (!formData.prompt.trim()) {
-      newErrors.prompt = 'Prompt is required';
-    }
-
-    if (
-      formData.parallel &&
-      formData.maxParallelInstances !== undefined &&
-      formData.maxParallelInstances < 1
-    ) {
-      newErrors.maxParallelInstances =
-        'Max parallel instances must be at least 1';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  useEffect(() => {
-    if (!validate()) return;
-
-    const timer = setTimeout(() => {
-      onChange({
-        data: {
-          ...node.data,
-          config: {
-            id: (node.data as any).config?.id || node.id,
-            ...formData,
-          },
-        },
-      });
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [formData]);
-
-  const updateField = <K extends keyof SubagentFormData>(
-    field: K,
-    value: SubagentFormData[K],
-  ) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   const toggleTool = (tool: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tools: prev.tools.includes(tool)
-        ? prev.tools.filter(t => t !== tool)
-        : [...prev.tools, tool],
-    }));
+    const newTools = formData.tools.includes(tool)
+      ? formData.tools.filter(t => t !== tool)
+      : [...formData.tools, tool];
+    updateField('tools', newTools);
   };
 
   return (

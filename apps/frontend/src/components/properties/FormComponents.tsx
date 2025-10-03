@@ -22,9 +22,10 @@ export function TextInput({
     <div>
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-300 mb-1"
+        className="block text-sm font-medium mb-1"
+        style={{ color: 'var(--text-primary)' }}
       >
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span style={{ color: 'var(--error)' }}>*</span>}
       </label>
       <input
         id={id}
@@ -33,11 +34,14 @@ export function TextInput({
         onChange={e => onChange(e.target.value)}
         disabled={disabled}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 bg-gray-700 border rounded text-white ${
-          error ? 'border-red-500' : 'border-gray-600'
-        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`w-full px-3 py-2 border rounded ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        style={{
+          background: 'var(--input-bg)',
+          borderColor: error ? 'var(--error)' : 'var(--input-border)',
+          color: 'var(--text-primary)',
+        }}
       />
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{error}</p>}
     </div>
   );
 }
@@ -72,9 +76,10 @@ export function NumberInput({
     <div>
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-300 mb-1"
+        className="block text-sm font-medium mb-1"
+        style={{ color: 'var(--text-primary)' }}
       >
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span style={{ color: 'var(--error)' }}>*</span>}
       </label>
       <input
         id={id}
@@ -85,13 +90,16 @@ export function NumberInput({
         max={max}
         step={step}
         disabled={disabled}
-        className={`w-full px-3 py-2 bg-gray-700 border rounded text-white ${
-          error ? 'border-red-500' : 'border-gray-600'
-        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`w-full px-3 py-2 border rounded ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        style={{
+          background: 'var(--input-bg)',
+          borderColor: error ? 'var(--error)' : 'var(--input-border)',
+          color: 'var(--text-primary)',
+        }}
       />
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{error}</p>}
       {helperText && !error && (
-        <p className="text-xs text-gray-400 mt-1">{helperText}</p>
+        <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>{helperText}</p>
       )}
     </div>
   );
@@ -123,18 +131,22 @@ export function Select({
     <div>
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-300 mb-1"
+        className="block text-sm font-medium mb-1"
+        style={{ color: 'var(--text-primary)' }}
       >
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span style={{ color: 'var(--error)' }}>*</span>}
       </label>
       <select
         id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
         disabled={disabled}
-        className={`w-full px-3 py-2 bg-gray-700 border rounded text-white ${
-          error ? 'border-red-500' : 'border-gray-600'
-        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`w-full px-3 py-2 border rounded ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        style={{
+          background: 'var(--input-bg)',
+          borderColor: error ? 'var(--error)' : 'var(--input-border)',
+          color: 'var(--text-primary)',
+        }}
       >
         {options.map(option => (
           <option key={option.value} value={option.value}>
@@ -142,9 +154,9 @@ export function Select({
           </option>
         ))}
       </select>
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{error}</p>}
       {helperText && !error && (
-        <p className="text-xs text-gray-400 mt-1">{helperText}</p>
+        <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>{helperText}</p>
       )}
     </div>
   );
@@ -180,9 +192,10 @@ export function Textarea({
     <div>
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-300 mb-1"
+        className="block text-sm font-medium mb-1"
+        style={{ color: 'var(--text-primary)' }}
       >
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span style={{ color: 'var(--error)' }}>*</span>}
       </label>
       <textarea
         id={id}
@@ -191,15 +204,18 @@ export function Textarea({
         rows={rows}
         disabled={disabled}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 bg-gray-700 border rounded text-white resize-y ${
+        className={`w-full px-3 py-2 border rounded resize-y ${
           monospace ? 'font-mono text-sm' : ''
-        } ${error ? 'border-red-500' : 'border-gray-600'} ${
-          disabled ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
+        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        style={{
+          background: 'var(--input-bg)',
+          borderColor: error ? 'var(--error)' : 'var(--input-border)',
+          color: 'var(--text-primary)',
+        }}
       />
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{error}</p>}
       {helperText && !error && (
-        <p className="text-xs text-gray-400 mt-1">{helperText}</p>
+        <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>{helperText}</p>
       )}
     </div>
   );
@@ -235,12 +251,12 @@ export function Checkbox({
           disabled={disabled}
           className="w-4 h-4"
         />
-        <span className={`text-gray-300 ${disabled ? 'opacity-50' : ''}`}>
+        <span className={disabled ? 'opacity-50' : ''} style={{ color: 'var(--text-primary)' }}>
           {label}
         </span>
       </label>
       {helperText && (
-        <p className="text-xs text-gray-400 mt-1 ml-6">{helperText}</p>
+        <p className="text-xs mt-1 ml-6" style={{ color: 'var(--text-tertiary)' }}>{helperText}</p>
       )}
     </div>
   );
@@ -254,11 +270,11 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, description }: SectionHeaderProps) {
   return (
     <div className="mb-3">
-      <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">
+      <h3 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>
         {title}
       </h3>
       {description && (
-        <p className="text-xs text-gray-400 mt-1">{description}</p>
+        <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>{description}</p>
       )}
     </div>
   );
@@ -298,7 +314,8 @@ export function Slider({
     <div>
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-300 mb-1"
+        className="block text-sm font-medium mb-1"
+        style={{ color: 'var(--text-primary)' }}
       >
         {label} {showValue && `: ${value.toFixed(2)}`}
       </label>
@@ -314,14 +331,14 @@ export function Slider({
         className={`w-full ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       />
       {(minLabel || maxLabel) && (
-        <div className="flex justify-between text-xs text-gray-400">
+        <div className="flex justify-between text-xs" style={{ color: 'var(--text-tertiary)' }}>
           <span>{minLabel || min}</span>
           <span>{maxLabel || max}</span>
         </div>
       )}
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{error}</p>}
       {helperText && !error && (
-        <p className="text-xs text-gray-400 mt-1">{helperText}</p>
+        <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>{helperText}</p>
       )}
     </div>
   );

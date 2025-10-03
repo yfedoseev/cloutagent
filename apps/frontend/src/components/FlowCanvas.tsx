@@ -44,9 +44,27 @@ const edgeTypes = {
 
 interface FlowCanvasProps {
   projectId?: string;
+  onWorkflowAction?: (action: {
+    type: 'run' | 'save' | 'clear' | 'history';
+    handler: () => void | Promise<void>;
+    disabled?: boolean;
+    label?: string;
+  }) => void;
+  onSave?: (savedAt: Date) => void;
+  renderToolbar?: (controls: {
+    handleRunWorkflow: () => Promise<void>;
+    handleSave: () => Promise<void>;
+    handleClearCanvas: () => void;
+    handleResetView: () => void;
+    setShowHistory: (show: boolean) => void;
+    isExecuting: boolean;
+    isSaving: boolean;
+    testMode: boolean;
+    nodes: any[];
+  }) => React.ReactNode;
 }
 
-export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
+export function FlowCanvas({ projectId = 'default-project', onSave, renderToolbar }: FlowCanvasProps) {
   const {
     nodes: storeNodes,
     edges: storeEdges,
@@ -59,7 +77,6 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(storeNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdges);
   const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [activeExecutionId, setActiveExecutionId] = useState<string | null>(
     null,
   );
@@ -243,14 +260,17 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
       };
 
       await apiClient.saveWorkflow(projectId, workflow);
-      setLastSaved(new Date());
+      const savedAt = new Date();
+      if (onSave) {
+        onSave(savedAt);
+      }
     } catch (error) {
       console.error('Save failed:', error);
       alert('Failed to save workflow');
     } finally {
       setIsSaving(false);
     }
-  }, [projectId, storeNodes, storeEdges, viewport]);
+  }, [projectId, storeNodes, storeEdges, viewport, onSave]);
 
   // Handle clear canvas
   const handleClearCanvas = useCallback(() => {
@@ -264,6 +284,13 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
         edges: [],
         selectedNodeId: null,
       });
+    }
+  }, []);
+
+  // Handle reset view (center and 100% zoom)
+  const handleResetView = useCallback(() => {
+    if (reactFlowInstance.current) {
+      reactFlowInstance.current.setViewport({ x: 0, y: 0, zoom: 1 });
     }
   }, []);
 
@@ -342,7 +369,7 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
     <div
       ref={reactFlowWrapper}
       className="h-screen w-full"
-      style={{ background: '#111827' }}
+      style={{ background: 'var(--bg-canvas)' }}
     >
       <ReactFlow
         nodes={nodes}
@@ -355,6 +382,11 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
         onNodeClick={onNodeClick}
         onInit={instance => {
           reactFlowInstance.current = instance;
+          // Apply fitView with max zoom constraint to center and scale properly
+          instance.fitView({ maxZoom: 1, padding: 0.1 });
+          // Sync the viewport to store
+          const actualViewport = instance.getViewport();
+          actions.setViewport(actualViewport);
         }}
         onDrop={onDrop}
         onDragOver={onDragOver}
@@ -377,7 +409,7 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
 
         {/* Grid Background */}
         <Background
-          color="rgba(255, 255, 255, 0.05)"
+          color="var(--border-secondary)"
           gap={20}
           size={1}
         />
@@ -385,7 +417,13 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
         {/* Empty State (when no nodes) */}
         {nodes.length === 0 && <CanvasEmptyState />}
 
-        <Controls className="glass rounded-xl border border-white/10" />
+        <Controls
+          className="rounded-xl"
+          style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-primary)'
+          }}
+        />
         <MiniMap
           nodeColor={node => {
             switch (node.type) {
@@ -401,12 +439,19 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
                 return '#6b7280';
             }
           }}
-          className="glass rounded-xl border border-white/10"
-          maskColor="rgba(0, 0, 0, 0.6)"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+          className="rounded-xl"
+          maskColor="var(--bg-tertiary)"
+          style={{
+            backgroundColor: 'var(--bg-secondary)',
+            border: '1px solid var(--border-primary)'
+          }}
         />
         <Panel position="top-left">
-          <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+          <div className="p-4 rounded-lg" style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-primary)',
+            boxShadow: 'var(--shadow-md)'
+          }}>
             <TestModeToggle
               enabled={testMode}
               onChange={setTestMode}
@@ -417,52 +462,27 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
             />
           </div>
         </Panel>
-        <Panel position="top-right" className="space-x-2 flex items-center">
-          <div className="text-white text-sm bg-gray-800 px-3 py-2 rounded border border-gray-700">
+        {renderToolbar && renderToolbar({
+          handleRunWorkflow,
+          handleSave,
+          handleClearCanvas,
+          handleResetView,
+          setShowHistory,
+          isExecuting,
+          isSaving,
+          testMode,
+          nodes,
+        })}
+        <Panel position="top-right" className="flex items-center">
+          <div className="text-sm px-3 py-2 rounded" style={{
+            color: 'var(--text-primary)',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-primary)'
+          }}>
             <div>Nodes: {nodes.length}</div>
             <div>Edges: {edges.length}</div>
             <div>Zoom: {(viewport.zoom * 100).toFixed(0)}%</div>
           </div>
-          {/* PRIMARY ACTION - Most important, warm coral */}
-          <button
-            onClick={handleRunWorkflow}
-            disabled={isExecuting || nodes.length === 0}
-            className="btn-primary-coral disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isExecuting ? 'Starting...' : testMode ? 'Test Run' : 'Run Workflow'}
-          </button>
-
-          {/* SECONDARY ACTION - Glassmorphic */}
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="btn-glass disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSaving ? 'Saving...' : 'Save'}
-          </button>
-
-          {/* Auto-save timestamp - keep as is */}
-          {lastSaved && (
-            <span className="text-xs text-gray-400">
-              Last saved: {lastSaved.toLocaleTimeString()}
-            </span>
-          )}
-
-          {/* TERTIARY ACTION - Minimal ghost */}
-          <button
-            onClick={() => setShowHistory(true)}
-            className="btn-ghost"
-          >
-            History
-          </button>
-
-          {/* DESTRUCTIVE ACTION - Subtle, requires confirmation */}
-          <button
-            onClick={handleClearCanvas}
-            className="btn-destructive"
-          >
-            Clear Canvas
-          </button>
         </Panel>
         <Panel position="bottom-left">
           <DryRunEstimate
@@ -475,15 +495,22 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
 
       {/* Test Mode Execution Panel */}
       {testMode && showTestPanel && (
-        <div className="fixed bottom-0 right-0 w-1/2 h-1/2 bg-gray-800 border-l border-t border-gray-700 shadow-2xl overflow-auto z-50">
+        <div className="fixed bottom-0 right-0 w-1/2 h-1/2 shadow-2xl overflow-auto z-50" style={{
+          background: 'var(--bg-secondary)',
+          borderLeft: '1px solid var(--border-primary)',
+          borderTop: '1px solid var(--border-primary)'
+        }}>
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white">
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 Test Mode Execution
               </h3>
               <button
                 onClick={() => setShowTestPanel(false)}
-                className="text-gray-400 hover:text-white"
+                className="transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
               >
                 ✕
               </button>
@@ -503,12 +530,18 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
 
       {/* Execution Monitor Drawer */}
       {showMonitor && activeExecutionId && (
-        <div className="fixed bottom-0 right-0 w-1/2 h-1/2 shadow-2xl border-l border-t border-gray-700 z-50">
-          <div className="h-full flex flex-col bg-gray-900">
+        <div className="fixed bottom-0 right-0 w-1/2 h-1/2 shadow-2xl z-50" style={{
+          borderLeft: '1px solid var(--border-primary)',
+          borderTop: '1px solid var(--border-primary)'
+        }}>
+          <div className="h-full flex flex-col" style={{ background: 'var(--bg-primary)' }}>
             {/* Monitor Header */}
-            <div className="flex items-center justify-between bg-gray-800 px-4 py-2 border-b border-gray-700">
+            <div className="flex items-center justify-between px-4 py-2" style={{
+              background: 'var(--bg-secondary)',
+              borderBottom: '1px solid var(--border-primary)'
+            }}>
               <div className="flex items-center gap-4">
-                <h3 className="text-white font-semibold">Execution Monitor</h3>
+                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Execution Monitor</h3>
                 <ExecutionControls
                   executionId={activeExecutionId}
                   status={executionStatus}
@@ -523,7 +556,10 @@ export function FlowCanvas({ projectId = 'default-project' }: FlowCanvasProps) {
               </div>
               <button
                 onClick={() => setShowMonitor(false)}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
               >
                 ✕
               </button>

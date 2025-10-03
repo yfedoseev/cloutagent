@@ -23,24 +23,24 @@
 
     /* === PRIMARY BACKGROUNDS === */
     --bg-primary: #FFFFFF;
-    --bg-secondary: #F9FAFB;
-    --bg-tertiary: #F3F4F6;
-    --bg-canvas: #FAFAFA;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #FAFBFC;
+    --bg-canvas: linear-gradient(135deg, #EEF2F6 0%, #D5DBE5 25%, #EEF2F6 50%, #D5DBE5 75%, #EEF2F6 100%);
 
     /* === BORDERS === */
-    --border-primary: #E5E7EB;
-    --border-secondary: #D1D5DB;
-    --border-hover: #9CA3AF;
+    --border-primary: #E1E4E8;
+    --border-secondary: #D0D7DE;
+    --border-hover: #8C959F;
 
     /* === TEXT === */
-    --text-primary: #111827;
-    --text-secondary: #6B7280;
-    --text-tertiary: #9CA3AF;
+    --text-primary: #0D1117;
+    --text-secondary: #1F2937;
+    --text-tertiary: #4B5563;
 
-    /* === PRIMARY ACCENT (Purple like Langflow) === */
-    --accent-primary: #7C3AED;
-    --accent-primary-hover: #6D28D9;
-    --accent-primary-active: #5B21B6;
+    /* === PRIMARY ACCENT (Orange like Anthropic) === */
+    --accent-primary: #D97757;
+    --accent-primary-hover: #E68A6E;
+    --accent-primary-active: #C86645;
 
     /* === SECONDARY ACCENT === */
     --accent-secondary: #3B82F6;
@@ -49,12 +49,15 @@
 
     /* === SEMANTIC COLORS === */
     --success: #10B981;
+    --success-bg: rgba(16, 185, 129, 0.1);
     --warning: #F59E0B;
+    --warning-bg: rgba(245, 158, 11, 0.1);
     --error: #EF4444;
+    --error-bg: rgba(239, 68, 68, 0.1);
     --info: #3B82F6;
 
     /* === NODE TYPE COLORS === */
-    --node-agent: #7C3AED;
+    --node-agent: #D97757;
     --node-subagent: #EC4899;
     --node-hook: #10B981;
     --node-mcp: #F59E0B;
@@ -62,31 +65,30 @@
     --node-output: #8B5CF6;
 
     /* === COMPONENT SPECIFIC === */
-    --input-bg: #FFFFFF;
-    --input-border: #E5E7EB;
+    --input-bg: #FAFBFC;
+    --input-border: #E1E4E8;
     --card-bg: #FFFFFF;
     --node-bg: #FFFFFF;
     --button-primary-bg: #7C3AED;
     --button-primary-text: #FFFFFF;
 
     /* === SHADOWS === */
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
-    --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
-    --shadow-button-hover: 0 4px 12px rgba(124, 58, 237, 0.3);
-    --shadow-focus: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+    --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
+    --shadow-card-hover: 0 8px 20px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+    --shadow-button-hover: 0 4px 12px rgba(217, 119, 87, 0.25);
+    --shadow-focus: 0 0 0 3px rgba(217, 119, 87, 0.12), 0 0 0 1px rgba(217, 119, 87, 0.3);
 
     /* ===================================== */
-    /* LEGACY GLASSMORPHIC VARIABLES        */
-    /* (Preserved for backward compatibility) */
+    /* GLASSMORPHIC VARIABLES                */
     /* ===================================== */
-    --glass-bg: rgba(124, 58, 237, 0.05);
-    --glass-bg-strong: rgba(124, 58, 237, 0.08);
-    --glass-border: rgba(124, 58, 237, 0.1);
-    --glass-hover: rgba(124, 58, 237, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --glass-bg-strong: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(0, 0, 0, 0.2);
+    --glass-hover: rgba(255, 255, 255, 0.45);
 
     /* Legacy color variables - map to new system */
     --color-bg-primary: var(--bg-primary);
@@ -188,9 +190,9 @@
     --text-tertiary: #71717A;
 
     /* === DARK MODE ACCENTS === */
-    --accent-primary: #7C3AED;
-    --accent-primary-hover: #8B5CF6;
-    --accent-primary-active: #6D28D9;
+    --accent-primary: #D97757;
+    --accent-primary-hover: #E68A6E;
+    --accent-primary-active: #C86645;
     --accent-secondary: #3B82F6;
     --accent-secondary-hover: #2563EB;
     --accent-secondary-active: #1D4ED8;
@@ -202,7 +204,7 @@
     --info: #3B82F6;
 
     /* === DARK MODE NODE TYPE COLORS === */
-    --node-agent: #7C3AED;
+    --node-agent: #D97757;
     --node-subagent: #EC4899;
     --node-hook: #10B981;
     --node-mcp: #F59E0B;
@@ -224,8 +226,8 @@
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
     --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.6);
     --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.5);
-    --shadow-button-hover: 0 4px 12px rgba(124, 58, 237, 0.4);
-    --shadow-focus: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    --shadow-button-hover: 0 4px 12px rgba(217, 119, 87, 0.4);
+    --shadow-focus: 0 0 0 3px rgba(217, 119, 87, 0.2);
 
     /* === DARK MODE GLASSMORPHIC === */
     --glass-bg: rgba(255, 255, 255, 0.05);
@@ -772,5 +774,21 @@
   .edge-label {
     font-size: 0.75rem;
     line-height: 1rem;
+  }
+
+  /* Node appearance animation with bounce */
+  @keyframes nodeAppear {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }

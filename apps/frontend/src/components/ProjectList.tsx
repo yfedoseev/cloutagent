@@ -49,28 +49,32 @@ export function ProjectList({
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen text-white p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-10">
-            <h1 className="text-4xl font-semibold tracking-tight text-white/95">Projects</h1>
+            <h1 className="text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Projects</h1>
             <button
               disabled
-              className="btn-primary-coral flex items-center gap-2"
+              className="btn-primary flex items-center gap-2 opacity-50"
             >
               <Plus size={20} />
               <span>Create New Project</span>
             </button>
           </div>
-          <div className="text-white/60 mb-6 font-medium">Loading projects...</div>
+          <div className="mb-6 font-medium" style={{ color: 'var(--text-secondary)' }}>Loading projects...</div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => (
               <div
                 key={i}
-                className="glass rounded-2xl p-6 animate-pulse-soft"
+                className="rounded-2xl p-6 animate-pulse-soft"
+                style={{
+                  background: 'var(--card-bg)',
+                  border: '1px solid var(--border-primary)'
+                }}
               >
-                <div className="h-6 bg-white/10 rounded-lg w-3/4 mb-4"></div>
-                <div className="h-4 bg-white/5 rounded-lg w-full mb-2"></div>
-                <div className="h-4 bg-white/5 rounded-lg w-2/3"></div>
+                <div className="h-6 rounded-lg w-3/4 mb-4" style={{ background: 'var(--bg-tertiary)' }}></div>
+                <div className="h-4 rounded-lg w-full mb-2" style={{ background: 'var(--bg-tertiary)' }}></div>
+                <div className="h-4 rounded-lg w-2/3" style={{ background: 'var(--bg-tertiary)' }}></div>
               </div>
             ))}
           </div>
@@ -82,24 +86,27 @@ export function ProjectList({
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen text-white p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-10">
-            <h1 className="text-4xl font-semibold tracking-tight text-white/95">Projects</h1>
+            <h1 className="text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Projects</h1>
             <button
               onClick={onCreateProject}
-              className="btn-primary-coral flex items-center gap-2"
+              className="btn-primary flex items-center gap-2"
             >
               <Plus size={20} />
               <span>Create New Project</span>
             </button>
           </div>
-          <div className="glass-strong rounded-2xl p-8 text-center max-w-2xl mx-auto border border-red-500/20">
-            <div className="text-red-400 text-2xl font-semibold mb-3 tracking-tight">Error Loading Projects</div>
-            <div className="text-red-300/80 mb-6 text-sm">{error}</div>
+          <div className="rounded-2xl p-8 text-center max-w-2xl mx-auto" style={{
+            background: 'var(--card-bg)',
+            border: '1px solid var(--error)'
+          }}>
+            <div className="text-2xl font-semibold mb-3 tracking-tight" style={{ color: 'var(--error)' }}>Error Loading Projects</div>
+            <div className="mb-6 text-sm" style={{ color: 'var(--text-secondary)' }}>{error}</div>
             <button
               onClick={loadProjects}
-              className="btn-glass inline-flex items-center gap-2"
+              className="btn-secondary inline-flex items-center gap-2"
             >
               <RefreshCw size={16} />
               <span>Retry</span>
@@ -113,31 +120,34 @@ export function ProjectList({
   // Empty state
   if (projects.length === 0) {
     return (
-      <div className="min-h-screen text-white p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-10">
-            <h1 className="text-4xl font-semibold tracking-tight text-white/95">Projects</h1>
+            <h1 className="text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Projects</h1>
             <button
               onClick={onCreateProject}
-              className="btn-primary-coral flex items-center gap-2"
+              className="btn-primary flex items-center gap-2"
             >
               <Plus size={20} />
               <span>Create New Project</span>
             </button>
           </div>
           <div className="text-center py-20">
-            <div className="glass-strong inline-flex items-center justify-center w-24 h-24 rounded-3xl mb-6 animate-float">
-              <Folder size={48} className="text-white/40" />
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl mb-6" style={{
+              background: 'var(--bg-tertiary)',
+              border: '1px solid var(--border-primary)'
+            }}>
+              <Folder size={48} style={{ color: 'var(--text-tertiary)' }} />
             </div>
-            <h2 className="text-3xl font-semibold text-white/90 mb-3 tracking-tight">
+            <h2 className="text-3xl font-semibold mb-3 tracking-tight" style={{ color: 'var(--text-primary)' }}>
               No projects yet
             </h2>
-            <p className="text-white/50 mb-8 text-lg max-w-md mx-auto">
+            <p className="mb-8 text-lg max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
               Create your first project to get started with CloutAgent
             </p>
             <button
               onClick={onCreateProject}
-              className="btn-primary-coral inline-flex items-center gap-2 px-8 py-4 text-lg"
+              className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg"
             >
               <Plus size={24} />
               <span>Create New Project</span>
@@ -150,13 +160,13 @@ export function ProjectList({
 
   // Project list
   return (
-    <div className="min-h-screen text-white p-8">
+    <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-10">
-          <h1 className="text-4xl font-semibold tracking-tight text-white/95">Projects</h1>
+          <h1 className="text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Projects</h1>
           <button
             onClick={onCreateProject}
-            className="btn-primary-coral flex items-center gap-2"
+            className="btn-primary flex items-center gap-2"
             aria-label="Create new project"
           >
             <Plus size={20} />
@@ -173,35 +183,42 @@ export function ProjectList({
               tabIndex={0}
               role="button"
               aria-label={`Open project ${project.name}`}
-              className="card-glass cursor-pointer group focus-ring"
+              className="cursor-pointer group focus-ring rounded-2xl p-6 transition-all duration-200"
+              style={{
+                background: 'var(--card-bg)',
+                border: '1px solid var(--border-primary)',
+                boxShadow: 'var(--shadow-sm)'
+              }}
             >
               <div className="flex items-start justify-between mb-4">
-                <h2 className="text-xl font-semibold text-white/90 group-hover:text-apple-blue transition-colors duration-200 tracking-tight">
+                <h2 className="text-xl font-semibold group-hover:opacity-80 transition-opacity duration-200 tracking-tight" style={{ color: 'var(--text-primary)' }}>
                   {project.name}
                 </h2>
-                <div className="glass rounded-lg p-2 group-hover:bg-apple-blue/20 transition-colors duration-200">
+                <div className="rounded-lg p-2 transition-colors duration-200" style={{
+                  background: 'var(--bg-tertiary)'
+                }}>
                   <Folder
                     size={18}
-                    className="text-white/40 group-hover:text-apple-blue transition-colors duration-200"
+                    style={{ color: 'var(--text-tertiary)' }}
                   />
                 </div>
               </div>
 
               {project.description && (
-                <p className="text-white/60 text-sm mb-5 line-clamp-2 leading-relaxed">
+                <p className="text-sm mb-5 line-clamp-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                   {project.description}
                 </p>
               )}
 
               <div className="space-y-3 text-sm mb-5">
-                <div className="flex items-center gap-2 text-white/50">
+                <div className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
                   <Cpu size={14} className="flex-shrink-0" />
                   <span className="font-mono text-xs tracking-tight">
                     {project.agent.model}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-white/50">
+                <div className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
                   <Calendar size={14} className="flex-shrink-0" />
                   <span className="text-xs">
                     Updated{' '}
@@ -212,11 +229,11 @@ export function ProjectList({
                 </div>
               </div>
 
-              <div className="pt-5 border-t border-white/10">
-                <div className="flex items-center justify-between text-xs font-medium">
-                  <span className="text-white/50">{project.subagents.length} subagents</span>
-                  <span className="text-white/50">{project.hooks.length} hooks</span>
-                  <span className="text-white/50">{project.mcps.length} MCPs</span>
+              <div className="pt-5" style={{ borderTop: '1px solid var(--border-secondary)' }}>
+                <div className="flex items-center justify-between text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                  <span>{project.subagents.length} subagents</span>
+                  <span>{project.hooks.length} hooks</span>
+                  <span>{project.mcps.length} MCPs</span>
                 </div>
               </div>
             </div>

@@ -106,32 +106,44 @@ export function PropertyPanel() {
       id="property-panel"
       className={`
         fixed right-0 top-0 h-full w-96
-        glass-strong border-l border-white/10
         shadow-2xl z-50 overflow-y-auto
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
         md:w-96 sm:w-full
       `}
+      style={{
+        background: 'var(--glass-bg)',
+        backdropFilter: 'blur(30px)',
+        WebkitBackdropFilter: 'blur(30px)',
+        borderLeft: '1px solid var(--border-primary)',
+        boxShadow: 'var(--shadow-xl)',
+      }}
       role="dialog"
       aria-label="Node properties"
       aria-modal="true"
     >
       {/* Header */}
-      <div className="panel-header sticky top-0 glass-strong border-b border-white/10 p-4 z-10">
+      <div className="panel-header sticky top-0 p-4 z-10" style={{
+        background: 'var(--glass-bg-strong)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: '1px solid var(--border-primary)',
+      }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Node Icon */}
             <NodeIcon
-              className="w-8 h-8 text-white/80"
+              className="w-8 h-8"
+              style={{ color: 'var(--accent-primary)' }}
               aria-label={`${nodeType} icon`}
             />
 
             {/* Node Name & Type */}
             <div>
-              <h3 className="font-semibold text-white text-lg">
+              <h3 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>
                 {selectedNode.data.config?.name || 'Untitled Node'}
               </h3>
-              <p className="text-xs text-white/60 text-gray-400">
+              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
                 {nodeType} node
               </p>
             </div>
@@ -139,7 +151,10 @@ export function PropertyPanel() {
 
           <button
             onClick={closePanel}
-            className="text-white/60 hover:text-white transition-colors"
+            className="transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
             aria-label="Close panel"
           >
             <svg
@@ -168,7 +183,8 @@ export function PropertyPanel() {
             Duplicate
           </button>
           <button
-            className="btn-glass text-xs text-red-400 flex-1"
+            className="btn-glass text-xs flex-1"
+            style={{ color: 'var(--error)' }}
             onClick={handleDelete}
             aria-label="Delete node"
           >
@@ -181,17 +197,25 @@ export function PropertyPanel() {
       <div className="p-4">{renderProperties()}</div>
 
       {/* Footer with auto-save indicator */}
-      <div className="panel-footer sticky bottom-0 glass-strong border-t border-white/10 p-4">
-        <div className="flex items-center justify-between text-xs text-white/50">
+      <div className="panel-footer sticky bottom-0 p-4" style={{
+        background: 'var(--glass-bg-strong)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderTop: '1px solid var(--border-primary)',
+      }}>
+        <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-tertiary)' }}>
           <div
             className="flex items-center gap-2"
             data-testid="autosave-indicator"
           >
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--success)' }}></div>
             <span>Auto-saved</span>
           </div>
           <button
-            className="text-blue-400 hover:text-blue-300 transition-colors"
+            className="transition-colors"
+            style={{ color: 'var(--accent-secondary)' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-secondary-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-secondary)'}
             onClick={handleResetDefaults}
           >
             Reset to defaults

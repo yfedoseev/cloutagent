@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { PropertyEditorProps, ValidationErrors } from './types';
+import { PropertyEditorProps } from './types';
+import { usePropertyForm } from '../../hooks/usePropertyForm';
 import { TextInput, Select, Checkbox, SectionHeader } from './FormComponents';
 
 interface MCPFormData {
@@ -27,57 +27,33 @@ const getConnectionExample = (type: 'url' | 'npx' | 'uvx'): string => {
   }
 };
 
+const validateMCPForm = (data: MCPFormData): Record<string, string> => {
+  const errors: Record<string, string> = {};
+
+  if (!data.name.trim()) {
+    errors.name = 'Name is required';
+  }
+
+  if (!data.connection.trim()) {
+    errors.connection = 'Connection is required';
+  }
+
+  return errors;
+};
+
 export function MCPProperties({ node, onChange }: PropertyEditorProps) {
-  const [formData, setFormData] = useState<MCPFormData>({
-    name: (node.data as any).config?.name || 'MCP Server',
-    type: (node.data as any).config?.type || 'npx',
-    connection: (node.data as any).config?.connection || '',
-    enabled: (node.data as any).config?.enabled ?? true,
-    tools: (node.data as any).config?.tools || [],
+  const { formData, updateField, errors } = usePropertyForm<MCPFormData>({
+    node,
+    defaults: {
+      name: 'MCP Server',
+      type: 'npx' as 'url' | 'npx' | 'uvx',
+      connection: '',
+      enabled: true,
+      tools: [],
+    },
+    onChange,
+    validate: validateMCPForm,
   });
-
-  const [errors, setErrors] = useState<ValidationErrors>({});
-
-  const validate = (): boolean => {
-    const newErrors: ValidationErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-
-    if (!formData.connection.trim()) {
-      newErrors.connection = 'Connection is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  useEffect(() => {
-    if (!validate()) return;
-
-    const timer = setTimeout(() => {
-      onChange({
-        data: {
-          ...node.data,
-          connected: false,
-          config: {
-            id: (node.data as any).config?.id || node.id,
-            ...formData,
-          },
-        },
-      });
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [formData]);
-
-  const updateField = <K extends keyof MCPFormData>(
-    field: K,
-    value: MCPFormData[K],
-  ) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
 
   return (
     <div className="space-y-6">
