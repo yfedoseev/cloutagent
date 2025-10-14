@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface DryRunEstimateProps {
   projectId: string;
@@ -12,6 +12,8 @@ export function DryRunEstimate({
   onEstimateReady,
 }: DryRunEstimateProps) {
   const [estimate, setEstimate] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const runDryRun = async () => {
     if (workflow.nodes.length === 0) {
@@ -19,27 +21,70 @@ export function DryRunEstimate({
       return;
     }
 
+    // Cancel any pending request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller for this request
+    abortControllerRef.current = new AbortController();
+    setIsLoading(true);
+
     try {
       const response = await fetch(`/api/projects/${projectId}/test/dry-run`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ workflow }),
+        signal: abortControllerRef.current.signal,
       });
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          // Rate limited - show user-friendly message
+          setEstimate({
+            valid: false,
+            errors: ['Too many requests. Please wait a moment and try again.']
+          });
+          return;
+        }
+        throw new Error(`HTTP ${response.status}`);
+      }
 
       const data = await response.json();
       setEstimate(data);
       onEstimateReady?.(data);
-    } catch (error) {
+    } catch (error: any) {
+      // Ignore abort errors (normal cancellation)
+      if (error.name === 'AbortError') {
+        return;
+      }
       console.error('Dry run failed:', error);
+      setEstimate({
+        valid: false,
+        errors: ['Failed to estimate workflow. Please try again.']
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    runDryRun();
+    // Debounce API calls by 1000ms to prevent rate limiting
+    const timer = setTimeout(() => {
+      runDryRun();
+    }, 1000);
+
+    // Cleanup: cancel timer and abort any pending request
+    return () => {
+      clearTimeout(timer);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflow.nodes, workflow.edges]);
 
-  if (!estimate) return null;
+  if (!estimate && !isLoading) return null;
 
   return (
     <div className="p-4 rounded-lg" style={{
@@ -48,6 +93,7 @@ export function DryRunEstimate({
     }}>
       <div className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
         💡 Workflow Estimate
+        {isLoading && <span className="ml-2 text-xs">Calculating...</span>}
       </div>
 
       {estimate.valid ? (

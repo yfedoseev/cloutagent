@@ -102,26 +102,38 @@ export function PropertyPanel() {
   };
 
   return (
-    <div
-      id="property-panel"
-      className={`
-        fixed right-0 top-0 h-full w-96
-        shadow-2xl z-50 overflow-y-auto
-        transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : 'translate-x-full'}
-        md:w-96 sm:w-full
-      `}
-      style={{
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(30px)',
-        WebkitBackdropFilter: 'blur(30px)',
-        borderLeft: '1px solid var(--border-primary)',
-        boxShadow: 'var(--shadow-xl)',
-      }}
-      role="dialog"
-      aria-label="Node properties"
-      aria-modal="true"
-    >
+    <>
+      {/* Mobile overlay backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={closePanel}
+          aria-label="Close property panel"
+        />
+      )}
+
+      <div
+        id="property-panel"
+        className={`
+          fixed right-0 top-0 h-full
+          shadow-2xl overflow-y-auto
+          transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+          w-full sm:w-full md:w-96 lg:w-[450px]
+          z-50
+        `}
+        style={{
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
+          borderLeft: '1px solid var(--border-primary)',
+          boxShadow: 'var(--shadow-xl)',
+          maxWidth: '100vw',
+        }}
+        role="dialog"
+        aria-label="Node properties"
+        aria-modal="true"
+      >
       {/* Header */}
       <div className="panel-header sticky top-0 p-4 z-10" style={{
         background: 'var(--glass-bg-strong)',
@@ -223,5 +235,6 @@ export function PropertyPanel() {
         </div>
       </div>
     </div>
+    </>
   );
 }

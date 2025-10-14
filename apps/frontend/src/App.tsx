@@ -40,31 +40,32 @@ function App() {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-primary)' }}>
         {/* Navigation Bar */}
-        <div className="sticky top-0 z-50 px-6 py-3 flex items-center justify-between gap-4" style={{
+        <div className="sticky top-0 z-50 px-3 md:px-6 py-2 md:py-3 flex items-center justify-between gap-2 md:gap-4" style={{
           background: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border-primary)'
         }}>
           <button
             onClick={() => setView('list')}
-            className="btn-ghost font-medium flex items-center gap-2 group flex-shrink-0"
+            className="btn-ghost font-medium flex items-center gap-1 md:gap-2 group flex-shrink-0 text-sm md:text-base px-2 md:px-3"
           >
             <span className="transition-transform group-hover:-translate-x-1">←</span>
-            <span>Back to Projects</span>
+            <span className="hidden sm:inline">Back to Projects</span>
+            <span className="sm:hidden">Back</span>
           </button>
 
           {/* Workflow Controls - will be populated by FlowCanvas */}
-          <div id="workflow-toolbar" className="flex items-center gap-2 flex-1 justify-center" />
+          <div id="workflow-toolbar" className="flex items-center gap-1 md:gap-2 flex-1 justify-center overflow-x-auto" />
 
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
             <ThemeToggle />
             <button
               onClick={() => setShowVariables(true)}
-              className="btn-primary text-white font-semibold flex items-center gap-2 shadow-apple-button hover:shadow-apple-button-hover"
+              className="btn-primary text-white font-semibold flex items-center gap-1 md:gap-2 shadow-apple-button hover:shadow-apple-button-hover text-sm md:text-base px-3 md:px-4"
             >
               <span>📦</span>
-              <span>Variables</span>
+              <span className="hidden sm:inline">Variables</span>
             </button>
-            <div className="flex flex-col gap-1 rounded-xl px-4 py-2" style={{
+            <div className="hidden md:flex flex-col gap-1 rounded-xl px-4 py-2" style={{
               background: 'var(--bg-tertiary)',
               border: '1px solid var(--border-secondary)'
             }}>

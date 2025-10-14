@@ -1,37 +1,38 @@
 {
   "nodes": [
     {
-      "id": "agent-1759386978408",
+      "id": "agent-1759442796936",
       "type": "agent",
       "data": {
         "config": {
-          "label": "New agent",
-          "position": {
-            "x": 389.4443852286075,
-            "y": 327.27632793754714
-          },
           "config": {
-            "id": "agent-1759386978408",
-            "name": "Agent",
+            "id": "agent-1759442796936",
+            "name": "Claude Agent",
             "model": "claude-sonnet-4-5",
             "systemPrompt": "",
             "temperature": 1,
             "maxTokens": 4096,
-            "enabledTools": []
+            "enabledTools": [],
+            "label": "New agent"
+          },
+          "validationErrors": [],
+          "position": {
+            "x": 324.26757463205814,
+            "y": 324.26757463205814
           }
         }
       },
       "position": {
-        "x": 389.4443852286075,
-        "y": 327.27632793754714
+        "x": 324.26757463205814,
+        "y": 324.26757463205814
       }
     }
   ],
   "edges": [],
   "viewport": {
-    "x": -231.7303892305681,
-    "y": -315.9094539006286,
-    "zoom": 1.8176795398747572
+    "x": 140,
+    "y": -68,
+    "zoom": 1
   },
   "version": "1.0.0"
 }

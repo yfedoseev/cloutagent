@@ -43,7 +43,7 @@ export function usePropertyForm<T extends Record<string, any>>({
     setFormData(config as T);
   }, [node.id, node.data]);
 
-  // Validate and auto-save
+  // Validate and auto-save with proper debouncing
   useEffect(() => {
     // Run validation if provided
     if (validate) {
@@ -56,6 +56,7 @@ export function usePropertyForm<T extends Record<string, any>>({
       }
     }
 
+    // Debounce the save operation
     const timer = setTimeout(() => {
       onChange({
         data: {
@@ -68,7 +69,9 @@ export function usePropertyForm<T extends Record<string, any>>({
     }, debounceMs);
 
     return () => clearTimeout(timer);
-  }, [formData, debounceMs, node.id, onChange]);
+    // Only depend on formData to prevent excessive re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData]);
 
   // Helper to update a single field
   const updateField = useCallback(

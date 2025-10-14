@@ -1,0 +1,30 @@
+{
+  "nodes": [
+    {
+      "id": "agent-1759442796936",
+      "type": "agent",
+      "data": {
+        "config": {
+          "config": {
+            "config": {
+              "config": {
+                "label": "New agent"
+              }
+            }
+          }
+        }
+      },
+      "position": {
+        "x": 324.26757463205814,
+        "y": 324.26757463205814
+      }
+    }
+  ],
+  "edges": [],
+  "viewport": {
+    "x": 140,
+    "y": -68,
+    "zoom": 1
+  },
+  "version": "1.0.0"
+}
