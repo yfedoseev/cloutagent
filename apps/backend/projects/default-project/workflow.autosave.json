@@ -14,11 +14,6 @@
             "maxTokens": 4096,
             "enabledTools": [],
             "label": "New agent"
-          },
-          "validationErrors": [],
-          "position": {
-            "x": 324.26757463205814,
-            "y": 324.26757463205814
           }
         }
       },

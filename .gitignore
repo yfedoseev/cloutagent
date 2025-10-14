@@ -116,3 +116,6 @@ Cargo.lock
 *.test
 *.out
 go.work
+
+# Playwright MCP testing artifacts
+.playwright-mcp/

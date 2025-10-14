@@ -55,7 +55,7 @@ export function ProjectList({
             <h1 className="text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Projects</h1>
             <button
               disabled
-              className="btn-primary flex items-center gap-2 opacity-50"
+              className="btn btn-primary"
             >
               <Plus size={20} />
               <span>Create New Project</span>
@@ -92,7 +92,7 @@ export function ProjectList({
             <h1 className="text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Projects</h1>
             <button
               onClick={onCreateProject}
-              className="btn-primary flex items-center gap-2"
+              className="btn btn-primary"
             >
               <Plus size={20} />
               <span>Create New Project</span>
@@ -106,7 +106,7 @@ export function ProjectList({
             <div className="mb-6 text-sm" style={{ color: 'var(--text-secondary)' }}>{error}</div>
             <button
               onClick={loadProjects}
-              className="btn-secondary inline-flex items-center gap-2"
+              className="btn btn-secondary"
             >
               <RefreshCw size={16} />
               <span>Retry</span>
@@ -126,7 +126,7 @@ export function ProjectList({
             <h1 className="text-4xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Projects</h1>
             <button
               onClick={onCreateProject}
-              className="btn-primary flex items-center gap-2"
+              className="btn btn-primary"
             >
               <Plus size={20} />
               <span>Create New Project</span>
@@ -147,7 +147,7 @@ export function ProjectList({
             </p>
             <button
               onClick={onCreateProject}
-              className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg"
+              className="btn btn-primary btn-lg"
             >
               <Plus size={24} />
               <span>Create New Project</span>

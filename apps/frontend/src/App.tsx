@@ -46,7 +46,7 @@ function App() {
         }}>
           <button
             onClick={() => setView('list')}
-            className="btn-ghost font-medium flex items-center gap-1 md:gap-2 group flex-shrink-0 text-sm md:text-base px-2 md:px-3"
+            className="btn btn-ghost btn-sm group"
           >
             <span className="transition-transform group-hover:-translate-x-1">←</span>
             <span className="hidden sm:inline">Back to Projects</span>
@@ -54,29 +54,33 @@ function App() {
           </button>
 
           {/* Workflow Controls - will be populated by FlowCanvas */}
-          <div id="workflow-toolbar" className="flex items-center gap-1 md:gap-2 flex-1 justify-center overflow-x-auto" />
+          <div id="workflow-toolbar" className="flex items-center gap-1 md:gap-2 flex-1 justify-center" />
 
           <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
             <ThemeToggle />
             <button
               onClick={() => setShowVariables(true)}
-              className="btn-primary text-white font-semibold flex items-center gap-1 md:gap-2 shadow-apple-button hover:shadow-apple-button-hover text-sm md:text-base px-3 md:px-4"
+              className="btn btn-primary"
             >
-              <span>📦</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
               <span className="hidden sm:inline">Variables</span>
             </button>
-            <div className="hidden md:flex flex-col gap-1 rounded-xl px-4 py-2" style={{
+            <div className="hidden md:flex items-center rounded-xl px-4" style={{
               background: 'var(--bg-tertiary)',
-              border: '1px solid var(--border-secondary)'
+              border: '1px solid var(--border-secondary)',
+              maxWidth: '200px',
+              height: '40px'
             }}>
-              <div className="font-semibold text-sm tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              <div className="font-semibold text-sm tracking-tight" style={{
+                color: 'var(--text-primary)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }} title={selectedProjectId}>
                 {selectedProjectId}
               </div>
-              {lastSaved && (
-                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                  Saved {lastSaved.toLocaleTimeString()}
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -91,41 +95,78 @@ function App() {
                   if (!toolbarElement) return null;
 
                   return createPortal(
-                    <>
+                    <div
+                      className="flex items-center gap-2"
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flexWrap: 'nowrap',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}
+                    >
+                      {/* Primary Action */}
                       <button
                         onClick={controls.handleRunWorkflow}
                         disabled={controls.isExecuting || controls.nodes.length === 0 || controls.hasValidationErrors}
-                        className="btn-primary-coral disabled:opacity-50 disabled:cursor-not-allowed"
-                        title={controls.hasValidationErrors ? 'Fix validation errors before running' : undefined}
+                        className="btn btn-primary"
+                        title={controls.hasValidationErrors ? 'Fix validation errors before running' : controls.testMode ? 'Test Run' : 'Run Workflow'}
                       >
-                        {controls.isExecuting ? 'Starting...' : controls.testMode ? 'Test Run' : 'Run Workflow'}
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="hidden xl:inline">{controls.isExecuting ? 'Starting...' : controls.testMode ? 'Test Run' : 'Run Workflow'}</span>
                       </button>
+
+                      {/* Secondary Actions */}
                       <button
                         onClick={controls.handleSave}
                         disabled={controls.isSaving}
-                        className="btn-glass disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="btn btn-secondary"
+                        title={controls.isSaving ? 'Saving...' : 'Save'}
                       >
-                        {controls.isSaving ? 'Saving...' : 'Save'}
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                        <span className="hidden xl:inline">{controls.isSaving ? 'Saving...' : 'Save'}</span>
                       </button>
-                      <button
-                        onClick={controls.handleResetView}
-                        className="btn-ghost"
-                      >
-                        Reset View
-                      </button>
+
                       <button
                         onClick={() => controls.setShowHistory(true)}
-                        className="btn-ghost"
+                        className="btn btn-secondary"
+                        title="History"
                       >
-                        History
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="hidden xl:inline">History</span>
                       </button>
+
+                      {/* Utility Actions */}
+                      <button
+                        onClick={controls.handleResetView}
+                        className="btn btn-ghost"
+                        title="Reset View"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        </svg>
+                        <span className="hidden xl:inline">Reset View</span>
+                      </button>
+
+                      {/* Danger Action */}
                       <button
                         onClick={controls.handleClearCanvas}
-                        className="btn-destructive"
+                        className="btn btn-danger"
+                        title="Clear Canvas"
                       >
-                        Clear Canvas
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span className="hidden xl:inline">Clear Canvas</span>
                       </button>
-                    </>,
+                    </div>,
                     toolbarElement
                   );
                 }}
@@ -155,10 +196,10 @@ function App() {
         }}>
           <button
             onClick={handleDemoMode}
-            className="btn-primary group relative inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+            className="btn btn-primary btn-lg group"
           >
-            <Rocket className="w-6 h-6 group-hover:scale-110 transition-transform" />
-            <span className="tracking-tight">Open Visual Workflow Builder</span>
+            <Rocket className="group-hover:scale-110 transition-transform" />
+            <span>Open Visual Workflow Builder</span>
           </button>
           <p className="text-sm mt-3 font-medium" style={{ color: 'var(--text-secondary)' }}>
             Skip project setup and explore the canvas

@@ -6,7 +6,7 @@ import { useMemo } from 'react';
  */
 export function useNodeConfig<T extends Record<string, any>>(
   node: any,
-  defaults: T
+  defaults: T,
 ): T {
   return useMemo(() => {
     const nodeConfig = node.data?.config?.config || node.data?.config || {};
@@ -19,7 +19,7 @@ export function useNodeConfig<T extends Record<string, any>>(
  */
 export function getNodeConfig<T extends Record<string, any>>(
   data: any,
-  defaults: Partial<T> = {}
+  defaults: Partial<T> = {},
 ): Partial<T> {
   const nodeConfig = data?.config || {};
   return { ...defaults, ...nodeConfig };
