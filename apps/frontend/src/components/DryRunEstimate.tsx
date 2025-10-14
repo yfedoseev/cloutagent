@@ -96,7 +96,7 @@ export function DryRunEstimate({
         {isLoading && <span className="ml-2 text-xs">Calculating...</span>}
       </div>
 
-      {estimate.valid ? (
+      {estimate && estimate.valid ? (
         <div className="space-y-2 text-sm">
           <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
             <span>Estimated Cost:</span>
@@ -117,13 +117,13 @@ export function DryRunEstimate({
             </span>
           </div>
         </div>
-      ) : (
+      ) : estimate && estimate.errors ? (
         <div className="text-sm" style={{ color: 'var(--error)' }}>
           {estimate.errors.map((err: string, i: number) => (
             <div key={i}>• {err}</div>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
