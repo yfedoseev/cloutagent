@@ -77,6 +77,7 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
   const { getNodeErrors, hasErrors } = useValidationStore();
   const [nodes, setNodes, onNodesChange] = useNodesState(storeNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdges);
+  const isDragging = useRef(false);
   const [isSaving, setIsSaving] = useState(false);
   const [activeExecutionId, setActiveExecutionId] = useState<string | null>(
     null,
@@ -113,7 +114,10 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
   }, [projectId]);
 
   // Sync store nodes/edges to local state with validation errors
+  // Skip sync during drag to prevent position jumping
   useEffect(() => {
+    if (isDragging.current) return;
+
     // Add validation errors to nodes
     const nodesWithValidation = storeNodes.map(node => ({
       ...node,
@@ -165,9 +169,16 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
     [actions, setEdges],
   );
 
+  // Handle node drag start - mark as dragging to prevent sync conflicts
+  const onNodeDragStart = useCallback(() => {
+    isDragging.current = true;
+  }, []);
+
   // Handle node drag end - update positions in store
   const onNodeDragStop = useCallback(
     (_event: React.MouseEvent, node: any) => {
+      isDragging.current = false;
+
       // Update node position in the store
       // Must update the store directly since position is at root level, not in data
       useCanvasStore.setState(state => ({
@@ -396,6 +407,7 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeDragStart={onNodeDragStart}
         onNodeDragStop={onNodeDragStop}
         onMoveEnd={onMoveEnd}
         onNodeClick={onNodeClick}
