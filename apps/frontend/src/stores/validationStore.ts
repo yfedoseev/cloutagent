@@ -7,6 +7,7 @@ interface ValidationStore {
 
   setValidationResult: (result: ValidationResult) => void;
   getNodeErrors: (nodeId: string) => ValidationError[];
+  hasErrors: () => boolean;
   clearValidation: () => void;
 }
 
@@ -41,6 +42,11 @@ export const useValidationStore = create<ValidationStore>((set, get) => ({
 
   getNodeErrors: (nodeId: string) => {
     return get().nodeErrors.get(nodeId) || [];
+  },
+
+  hasErrors: () => {
+    const result = get().validationResult;
+    return result ? result.errors.length > 0 : false;
   },
 
   clearValidation: () => {

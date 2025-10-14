@@ -60,6 +60,7 @@ interface FlowCanvasProps {
     isExecuting: boolean;
     isSaving: boolean;
     testMode: boolean;
+    hasValidationErrors: boolean;
     nodes: any[];
   }) => React.ReactNode;
 }
@@ -73,7 +74,7 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
     actions,
   } = useCanvasStore();
   const { openPanel } = usePropertyPanelStore();
-  const { getNodeErrors } = useValidationStore();
+  const { getNodeErrors, hasErrors } = useValidationStore();
   const [nodes, setNodes, onNodesChange] = useNodesState(storeNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdges);
   const [isSaving, setIsSaving] = useState(false);
@@ -304,13 +305,30 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
     setIsExecuting(true);
     setExecutionStatus('running');
     try {
+      // Serialize workflow data to remove circular references
+      const workflow: WorkflowData = {
+        nodes: storeNodes.map(node => ({
+          id: node.id,
+          type: (node.type as 'agent' | 'subagent' | 'hook' | 'mcp') || 'agent',
+          data: { config: node.data },
+          position: node.position,
+        })),
+        edges: storeEdges.map(edge => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+        })),
+        viewport,
+        version: '1.0.0',
+      };
+
       const response = await fetch('/api/executions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           projectId,
           input: input || 'Execute workflow',
-          workflow: { nodes: storeNodes, edges: storeEdges, viewport },
+          workflow,
         }),
       });
 
@@ -471,6 +489,7 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
           isExecuting,
           isSaving,
           testMode,
+          hasValidationErrors: hasErrors(),
           nodes,
         })}
         <Panel position="top-right" className="flex items-center">

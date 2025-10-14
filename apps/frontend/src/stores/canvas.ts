@@ -26,11 +26,46 @@ export const useCanvasStore = create<CanvasStore>()(
       actions: {
         addNode: (type: NodeType, position: { x: number; y: number }) => {
           set(state => {
+            // Create node with valid default configuration
+            // Note: Backend validation expects data.config for most fields
+            const defaultConfigs: Record<NodeType, any> = {
+              agent: {
+                config: {
+                  name: 'Claude Agent',
+                  model: 'claude-sonnet-4-5',
+                  systemPrompt: 'You are a helpful AI assistant.',
+                  temperature: 1.0,
+                  maxTokens: 4096,
+                },
+              },
+              subagent: {
+                config: {
+                  name: 'Unnamed Subagent',
+                  type: 'code-reviewer',
+                  prompt: 'Review code for best practices and potential issues.',
+                },
+              },
+              hook: {
+                config: {
+                  name: 'Unnamed Hook',
+                  event: 'on-start',
+                  action: 'log',
+                },
+              },
+              mcp: {
+                config: {
+                  name: 'Unnamed Tool',
+                  toolName: '',
+                  description: '',
+                },
+              },
+            };
+
             const newNode: Node = {
               id: `${type}-${Date.now()}`,
               type,
               position,
-              data: { label: `New ${type}` },
+              data: defaultConfigs[type] || { label: `New ${type}` },
             };
             state.nodes.push(newNode);
           });

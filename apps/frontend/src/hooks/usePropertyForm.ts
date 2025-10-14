@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNodeConfig, getNodeConfig } from './useNodeConfig';
+import { useNodeConfig } from './useNodeConfig';
 
 interface UsePropertyFormOptions<T> {
   node: any;
@@ -78,7 +78,7 @@ export function usePropertyForm<T extends Record<string, any>>({
     <K extends keyof T>(field: K, value: T[K]) => {
       setFormData(prev => ({ ...prev, [field]: value }));
     },
-    []
+    [],
   );
 
   return {

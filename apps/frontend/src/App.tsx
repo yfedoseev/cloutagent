@@ -94,8 +94,9 @@ function App() {
                     <>
                       <button
                         onClick={controls.handleRunWorkflow}
-                        disabled={controls.isExecuting || controls.nodes.length === 0}
+                        disabled={controls.isExecuting || controls.nodes.length === 0 || controls.hasValidationErrors}
                         className="btn-primary-coral disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={controls.hasValidationErrors ? 'Fix validation errors before running' : undefined}
                       >
                         {controls.isExecuting ? 'Starting...' : controls.testMode ? 'Test Run' : 'Run Workflow'}
                       </button>
