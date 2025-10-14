@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNodeConfig } from './useNodeConfig';
+import { useNodeConfig, getNodeConfig } from './useNodeConfig';
 
 interface UsePropertyFormOptions<T> {
   node: any;
@@ -37,9 +37,11 @@ export function usePropertyForm<T extends Record<string, any>>({
 
   // Update form data when node changes
   useEffect(() => {
-    const config = useNodeConfig(node, defaults);
+    // Use non-hook version inside useEffect to avoid Rules of Hooks violation
+    const nodeConfig = node.data?.config?.config || node.data?.config || {};
+    const config = { ...defaults, ...nodeConfig };
     setFormData(config as T);
-  }, [node.id]);
+  }, [node.id, node.data]);
 
   // Validate and auto-save
   useEffect(() => {
