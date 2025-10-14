@@ -168,14 +168,15 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
   // Handle node drag end - update positions in store
   const onNodeDragStop = useCallback(
     (_event: React.MouseEvent, node: any) => {
-      // Update the entire node data including position
-      const nodeData = {
-        ...node.data,
-        position: node.position,
-      };
-      actions.updateNode(node.id, nodeData);
+      // Update node position in the store
+      // Must update the store directly since position is at root level, not in data
+      useCanvasStore.setState(state => ({
+        nodes: state.nodes.map(n =>
+          n.id === node.id ? { ...n, position: node.position } : n
+        ),
+      }));
     },
-    [actions],
+    [],
   );
 
   // Handle viewport change
