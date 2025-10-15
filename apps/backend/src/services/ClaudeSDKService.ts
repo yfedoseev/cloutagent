@@ -5,16 +5,18 @@ import type {
   SDKExecutionResult,
 } from '@cloutagent/types';
 import { v4 as uuidv4 } from 'uuid';
+import Anthropic from '@anthropic-ai/sdk';
 
 /**
  * Claude SDK Service
  *
- * Integrates with @anthropic-ai/claude-agent-sdk to execute AI agent workflows.
+ * Integrates with Anthropic SDK to execute AI agent workflows.
  * Provides agent creation, execution, streaming, and token tracking capabilities.
  */
 export class ClaudeSDKService {
   private apiKey: string | null = null;
   private agents: Map<string, Agent> = new Map();
+  private anthropic: Anthropic;
 
   // Claude Sonnet 4.5 pricing (per 1K tokens)
   private readonly PRICING = {
@@ -30,6 +32,13 @@ export class ClaudeSDKService {
 
   constructor() {
     this.apiKey = process.env.ANTHROPIC_API_KEY || null;
+
+    // Initialize Anthropic client (will be used only if API key is set)
+    if (this.apiKey) {
+      this.anthropic = new Anthropic({
+        apiKey: this.apiKey,
+      });
+    }
   }
 
   /**
@@ -212,8 +221,8 @@ export class ClaudeSDKService {
   }
 
   /**
-   * Execute with SDK (mocked for now until SDK is available)
-   * This will be replaced with actual SDK calls when the SDK is integrated
+   * Execute with Anthropic SDK
+   * Calls the real Anthropic API and returns response with token counts
    *
    * @private
    */
@@ -221,32 +230,51 @@ export class ClaudeSDKService {
     agent: Agent,
     input: string,
     systemPrompt: string,
-    _maxTokens: number,
+    maxTokens: number,
   ): Promise<{
     output: string;
     promptTokens: number;
     completionTokens: number;
   }> {
-    // Mock implementation for testing
-    // In production, this will use the actual @anthropic-ai/claude-agent-sdk
+    if (!this.anthropic) {
+      throw new Error('Anthropic client not initialized. Check ANTHROPIC_API_KEY.');
+    }
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Mock token counting (rough estimate)
-    const promptTokens = Math.ceil((systemPrompt.length + input.length) / 4);
-    const mockResponse = 'This is a mock response from Claude.';
-    const completionTokens = Math.ceil(mockResponse.length / 4);
+    const response = await this.anthropic.messages.create({
+      model: agent.config.model,
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: input,
+        },
+      ],
+      temperature: agent.config.temperature,
+    });
 
     return {
-      output: mockResponse,
-      promptTokens,
-      completionTokens,
+      output: this.extractTextContent(response.content),
+      promptTokens: response.usage.input_tokens,
+      completionTokens: response.usage.output_tokens,
     };
   }
 
   /**
-   * Stream with SDK (mocked for now until SDK is available)
+   * Extract text content from Anthropic response content blocks
+   *
+   * @private
+   */
+  private extractTextContent(content: Anthropic.ContentBlock[]): string {
+    return content
+      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+      .map(block => block.text)
+      .join('');
+  }
+
+  /**
+   * Stream with Anthropic SDK
+   * Streams responses in real-time with token tracking
    *
    * @private
    */
@@ -261,25 +289,46 @@ export class ClaudeSDKService {
     promptTokens: number;
     completionTokens: number;
   }> {
-    // Mock implementation for testing
-    // In production, this will use the actual @anthropic-ai/claude-agent-sdk streaming
-
-    const promptTokens = Math.ceil((systemPrompt.length + input.length) / 4);
-    const chunks = ['This ', 'is ', 'a ', 'mock ', 'streaming ', 'response.'];
-    let output = '';
-
-    for (const chunk of chunks) {
-      await new Promise(resolve => setTimeout(resolve, 20));
-      onChunk(chunk);
-      output += chunk;
+    if (!this.anthropic) {
+      throw new Error('Anthropic client not initialized. Check ANTHROPIC_API_KEY.');
     }
 
-    const completionTokens = Math.ceil(output.length / 4);
+    let fullOutput = '';
+    let inputTokens = 0;
+    let outputTokens = 0;
+
+    const stream = await this.anthropic.messages.stream({
+      model: agent.config.model,
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: input,
+        },
+      ],
+      temperature: agent.config.temperature,
+    });
+
+    // Listen for text chunks
+    stream.on('text', (text) => {
+      fullOutput += text;
+      onChunk(text);
+    });
+
+    // Listen for message completion to get usage stats
+    stream.on('message', (message) => {
+      inputTokens = message.usage.input_tokens;
+      outputTokens = message.usage.output_tokens;
+    });
+
+    // Wait for stream to complete
+    await stream.finalMessage();
 
     return {
-      output,
-      promptTokens,
-      completionTokens,
+      output: fullOutput,
+      promptTokens: inputTokens,
+      completionTokens: outputTokens,
     };
   }
 

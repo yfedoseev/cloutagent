@@ -3,22 +3,74 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { ClaudeSDKService } from './ClaudeSDKService';
 
-// Mock the Claude Agent SDK
-vi.mock('@anthropic-ai/claude-agent-sdk', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    createAgent: vi.fn(),
-    runAgent: vi.fn(),
-    stopAgent: vi.fn(),
-  })),
-}));
+// Create mock functions for Anthropic SDK
+const mockCreate = vi.fn();
+const mockStream = vi.fn();
+
+// Mock the Anthropic SDK
+vi.mock('@anthropic-ai/sdk', () => {
+  const MockAnthropic = vi.fn().mockImplementation(() => ({
+    messages: {
+      create: mockCreate,
+      stream: mockStream,
+    },
+  }));
+  return {
+    default: MockAnthropic,
+  };
+});
 
 describe('ClaudeSDKService', () => {
   let service: ClaudeSDKService;
   let mockAgentConfig: AgentConfig;
 
   beforeEach(() => {
+    // Clear all mocks
+    vi.clearAllMocks();
+
     // Set up environment
     process.env.ANTHROPIC_API_KEY = 'sk-ant-test-key-123';
+
+    // Setup default mock responses
+    mockCreate.mockResolvedValue({
+      id: 'msg_123',
+      type: 'message',
+      role: 'assistant',
+      content: [
+        {
+          type: 'text',
+          text: 'This is a test response.',
+        },
+      ],
+      model: 'claude-sonnet-4-5',
+      stop_reason: 'end_turn',
+      stop_sequence: null,
+      usage: {
+        input_tokens: 10,
+        output_tokens: 5,
+      },
+    });
+
+    // Setup default mock stream
+    const mockStreamInstance = {
+      on: vi.fn((event: string, handler: any) => {
+        if (event === 'text') {
+          handler('This ');
+          handler('is ');
+          handler('streaming.');
+        } else if (event === 'message') {
+          handler({
+            usage: {
+              input_tokens: 8,
+              output_tokens: 4,
+            },
+          });
+        }
+        return mockStreamInstance;
+      }),
+      finalMessage: vi.fn().mockResolvedValue({}),
+    };
+    mockStream.mockResolvedValue(mockStreamInstance);
 
     service = new ClaudeSDKService();
 
@@ -59,9 +111,29 @@ describe('ClaudeSDKService', () => {
   });
 
   describe('executeAgent', () => {
-    it('should execute agent and return result', async () => {
+    it('should execute agent and return result with real API token counts', async () => {
       const agent = await service.createAgent(mockAgentConfig);
       const input = 'Hello, how are you?';
+
+      // Mock Anthropic API response with specific token counts
+      mockCreate.mockResolvedValueOnce({
+        id: 'msg_123',
+        type: 'message',
+        role: 'assistant',
+        content: [
+          {
+            type: 'text',
+            text: 'Hello! I am doing well, thank you for asking.',
+          },
+        ],
+        model: 'claude-sonnet-4-5',
+        stop_reason: 'end_turn',
+        stop_sequence: null,
+        usage: {
+          input_tokens: 25,
+          output_tokens: 12,
+        },
+      });
 
       const result = await service.executeAgent(agent, input);
 
@@ -70,8 +142,9 @@ describe('ClaudeSDKService', () => {
       expect(result.status).toBe('completed');
       expect(result.result).toBeDefined();
       expect(result.cost).toBeDefined();
-      expect(result.cost.promptTokens).toBeGreaterThan(0);
-      expect(result.cost.completionTokens).toBeGreaterThan(0);
+      // Token counts should come from API response, not estimation
+      expect(result.cost.promptTokens).toBe(25);
+      expect(result.cost.completionTokens).toBe(12);
       expect(result.cost.totalCost).toBeGreaterThan(0);
       expect(result.duration).toBeGreaterThanOrEqual(0);
     });
