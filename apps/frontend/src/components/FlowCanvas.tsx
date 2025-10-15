@@ -317,27 +317,49 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
     setIsExecuting(true);
     setExecutionStatus('running');
     try {
-      // Serialize workflow data - extract only plain config data, no React refs
-      const serializeNodeData = (data: any) => {
-        // If data has a config property, use it; otherwise use data directly
-        const source = data.config || data;
+      // Deep serialize to remove ALL circular references and non-serializable data
+      const safeSerialize = (obj: any): any => {
+        const seen = new WeakSet();
 
-        // Extract only plain serializable properties
-        const {
-          // Exclude any React/DOM references
-          validationErrors,
-          ref,
-          ...plainData
-        } = source;
+        const serialize = (value: any): any => {
+          // Handle primitives
+          if (value === null || value === undefined) return value;
+          if (typeof value !== 'object') return value;
 
-        return plainData;
+          // Detect circular references
+          if (seen.has(value)) return undefined;
+          seen.add(value);
+
+          // Handle arrays
+          if (Array.isArray(value)) {
+            return value.map(item => serialize(item)).filter(item => item !== undefined);
+          }
+
+          // Handle objects - only keep plain serializable properties
+          const result: any = {};
+          for (const key in value) {
+            if (value.hasOwnProperty(key)) {
+              // Skip React/DOM properties
+              if (key.startsWith('__react') || key === 'validationErrors' || key === 'ref') {
+                continue;
+              }
+              const serialized = serialize(value[key]);
+              if (serialized !== undefined) {
+                result[key] = serialized;
+              }
+            }
+          }
+          return result;
+        };
+
+        return serialize(obj);
       };
 
-      const workflow: WorkflowData = {
+      const workflow: WorkflowData = safeSerialize({
         nodes: storeNodes.map(node => ({
           id: node.id,
-          type: (node.type as 'agent' | 'subagent' | 'hook' | 'mcp') || 'agent',
-          data: { config: serializeNodeData(node.data) },
+          type: node.type || 'agent',
+          data: { config: node.data.config || node.data },
           position: node.position,
         })),
         edges: storeEdges.map(edge => ({
@@ -347,7 +369,7 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
         })),
         viewport,
         version: '1.0.0',
-      };
+      });
 
       const response = await fetch('/api/executions', {
         method: 'POST',

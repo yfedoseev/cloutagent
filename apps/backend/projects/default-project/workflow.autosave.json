@@ -1,30 +1,32 @@
 {
   "nodes": [
     {
-      "id": "agent-1760504684115",
+      "id": "agent-1760504965663",
       "type": "agent",
       "data": {
         "config": {
           "config": {
+            "id": "agent-1760504965663",
             "name": "Claude Agent",
             "model": "claude-sonnet-4-5",
             "systemPrompt": "You are a helpful AI assistant.",
             "temperature": 1,
-            "maxTokens": 4096
+            "maxTokens": 4096,
+            "enabledTools": []
           }
         }
       },
       "position": {
-        "x": 407.2596344562877,
-        "y": 154.95963521922715
+        "x": 407.72508857528123,
+        "y": -138.0552513690455
       }
     }
   ],
   "edges": [],
   "viewport": {
-    "x": 140,
-    "y": -68,
-    "zoom": 1
+    "x": -58.60308871070811,
+    "y": 298.24347689047806,
+    "zoom": 0.7029321882354328
   },
   "version": "1.0.0"
 }
