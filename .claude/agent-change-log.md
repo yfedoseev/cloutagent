@@ -2001,3 +2001,205 @@ interface SSEEvent {
 
 ---
 
+## [2025-10-14 19:30] Backend Engineer 2 - MCP Client Pool Implementation
+
+**Task**: Task 1.4 - MCP Client Pool - Multi-Server Management
+**Implementation Plan**: /home/yfedoseev/projects/cloutagent/docs/CLAUDE_SDK_MCP_IMPLEMENTATION_PLAN.md
+
+### Files Created
+
+1. **apps/backend/src/services/mcp/MCPClientPool.ts** (NEW - 371 lines)
+   - Complete MCP client pool manager for multiple MCP server connections
+   - Parallel server initialization with graceful failure handling
+   - Tool aggregation with conflict resolution (automatic prefixing)
+   - Tool routing to correct server based on tool name
+   - Server status tracking with live updates
+   - Reconnection support for failed servers
+   - Clean shutdown with resource cleanup
+
+2. **apps/backend/tests/services/mcp/MCPClientPool.test.ts** (NEW - 492 lines)
+   - Comprehensive test suite with 27 tests covering all functionality
+   - Mock-based testing with Vitest
+   - Test scenarios for initialization, tool discovery, execution, status, reconnect, shutdown
+   - Tool name conflict handling tests
+   - Server failure scenarios
+   - Routing map verification tests
+
+### Files Modified
+
+1. **packages/types/src/claude-sdk.ts**
+   - Updated `IMCPClientPool` interface to match implementation plan
+   - Added `PooledMCPClient` interface for internal pool client representation
+   - Modified method signatures (initialize, shutdown, discoverAllTools, executeTool, getServerStatus, reconnect)
+
+### Changes Made
+
+**MCPClientPool Architecture**:
+- Manages Map of server ID → PooledMCPClient
+- Maintains tool routing map (toolName → serverId) for fast lookups
+- Dependency injection support via client factory for testing
+- Parallel connection to all servers with Promise.all()
+- Graceful error handling (failed servers don't crash the pool)
+
+**Key Features**:
+1. **Parallel Initialization**: Connects to all MCP servers simultaneously
+2. **Graceful Degradation**: If one server fails, others continue working
+3. **Tool Name Conflict Resolution**: Automatically prefixes conflicting tools with server name (e.g., `filesystem:read_file` vs `memory:read_file`)
+4. **Smart Tool Routing**: Routes tool calls to correct server based on tool name
+5. **Auto Reconnection**: Detects disconnected servers and attempts reconnection
+6. **Live Status Tracking**: getServerStatus() returns current connection state
+7. **Clean Shutdown**: Disconnects all servers and clears state
+
+**Tool Conflict Handling**:
+```typescript
+// If two servers provide 'read_file':
+// - filesystem:read_file → routes to filesystem server
+// - memory:read_file → routes to memory server
+
+// If tool name is unique:
+// - git_status → routes to git server (no prefix needed)
+```
+
+**Error Handling Strategy**:
+- Connection failures during initialization → mark server as 'error', continue with others
+- Tool discovery failures → mark server as 'error', log warning
+- Execution on disconnected server → attempt reconnection automatically
+- Reconnection failures → mark server as 'error', don't throw (graceful)
+- Shutdown errors → log warning, continue cleanup
+
+**Status Tracking Design**:
+- Pool maintains cached status for initialization errors
+- getServerStatus() checks live client status for runtime disconnections
+- Hybrid approach: initialization errors persist, runtime status is live
+
+### Rationale
+
+- **Production-Ready**: Handles real-world failure scenarios gracefully
+- **Scalable**: Supports any number of MCP servers in parallel
+- **Developer-Friendly**: Automatic tool name conflict resolution
+- **Testable**: Dependency injection allows full unit testing
+- **Resource-Safe**: Proper cleanup prevents memory leaks
+
+### Impact
+
+- ✅ All 27 tests passing
+- ✅ Handles multiple MCP servers simultaneously
+- ✅ Tool name conflicts resolved automatically
+- ✅ Server failures don't crash the pool
+- ✅ Ready for integration with ClaudeSDKService (Task 1.5)
+- ✅ Production-ready error handling and logging
+- ✅ No memory leaks (comprehensive shutdown logic)
+
+### Test Results
+
+```
+Test Files  1 passed (1)
+     Tests  27 passed (27)
+  Start at  18:18:12
+  Duration  1.78s
+```
+
+**Test Coverage**:
+- initialize: 6 tests ✓
+  - Parallel server connections
+  - Tool discovery from all servers
+  - Graceful connection failure handling
+  - Failed server error status marking
+  - Tool discovery failure handling
+  - Empty server list handling
+
+- discoverAllTools: 5 tests ✓
+  - Tool aggregation from all servers
+  - Tool name conflict prefixing
+  - Unique tools without prefixes
+  - Empty array for no connected servers
+  - Only includes tools from connected servers
+
+- executeTool: 5 tests ✓
+  - Route tool call to correct server
+  - Route prefixed tool call correctly
+  - Handle unknown tool names
+  - Server disconnection with auto-retry
+  - Tool execution error handling
+
+- getServerStatus: 2 tests ✓
+  - Return status of all servers
+  - Reflect current connection status (live updates)
+
+- reconnect: 4 tests ✓
+  - Reconnect to specific server
+  - Rediscover tools after reconnection
+  - Handle reconnection failures gracefully
+  - Handle unknown server ID
+
+- shutdown: 3 tests ✓
+  - Disconnect all servers
+  - Handle shutdown errors gracefully
+  - Clear all servers after shutdown
+
+- tool routing map: 2 tests ✓
+  - Build routing map on initialization
+  - Update routing map on reconnection
+
+### Acceptance Criteria Status
+
+- ✅ Pool manages multiple MCP server connections
+- ✅ Tools are aggregated from all servers
+- ✅ Tool calls are routed to correct server
+- ✅ Tool name conflicts are handled (prefixing)
+- ✅ Server failures don't crash the pool
+- ✅ All tests pass (27/27)
+- ✅ Code follows existing conventions
+
+### Technical Notes
+
+**Client Factory Pattern**:
+```typescript
+constructor(clientFactory?: (config: MCPServerConfig) => IMCPClient) {
+  this.clientFactory = clientFactory || ((config) => new MCPClient(config));
+}
+```
+- Allows dependency injection of mock clients for testing
+- Defaults to creating real MCPClient instances
+- Enables 100% unit test coverage
+
+**Tool Routing Map Algorithm**:
+1. First pass: Count tool names across all servers
+2. Identify conflicts (count > 1)
+3. Second pass: Build routing map
+   - Conflicting tools: Store `serverId:toolName` → serverId
+   - Unique tools: Store `toolName` → serverId
+
+**Status Tracking Logic**:
+```typescript
+getServerStatus() {
+  // If pool status is 'error' (from initialization), keep it
+  if (pooledClient.status === 'error') return 'error';
+  
+  // Otherwise, get live status from client
+  return pooledClient.client.getStatus();
+}
+```
+
+### Dependencies
+
+**Builds On**:
+- Task 1.3 (MCP Client) - Uses MCPClient for individual server connections
+
+**Ready For**:
+- Task 1.5 (ClaudeSDKService Integration) - Pool ready to provide multi-server tool access
+- Frontend integration - Pool exposes simple API for tool execution
+
+### Next Steps
+
+1. ✅ All tests passing
+2. ✅ Quality check completed (lint warnings only, no errors)
+3. ⏭️ Commit changes with detailed message
+4. ⏭️ Coordinate with Backend Engineer 1 on Task 1.5 (ClaudeSDKService integration)
+5. 🔮 Future enhancement: Add metrics for pool health monitoring
+6. 🔮 Future enhancement: Add tool usage analytics
+
+**Status**: Implementation complete, all tests passing, quality validated, ready for commit.
+
+---
+
