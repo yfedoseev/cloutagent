@@ -317,18 +317,29 @@ export function FlowCanvas({ projectId = 'default-project', onSave, renderToolba
     setIsExecuting(true);
     setExecutionStatus('running');
     try {
-      // Serialize workflow data to remove circular references
-      // Extract only serializable config, excluding validationErrors and other React refs
+      // Serialize workflow data - extract only plain config data, no React refs
+      const serializeNodeData = (data: any) => {
+        // If data has a config property, use it; otherwise use data directly
+        const source = data.config || data;
+
+        // Extract only plain serializable properties
+        const {
+          // Exclude any React/DOM references
+          validationErrors,
+          ref,
+          ...plainData
+        } = source;
+
+        return plainData;
+      };
+
       const workflow: WorkflowData = {
-        nodes: storeNodes.map(node => {
-          const { validationErrors, ...config } = node.data;
-          return {
-            id: node.id,
-            type: (node.type as 'agent' | 'subagent' | 'hook' | 'mcp') || 'agent',
-            data: { config },
-            position: node.position,
-          };
-        }),
+        nodes: storeNodes.map(node => ({
+          id: node.id,
+          type: (node.type as 'agent' | 'subagent' | 'hook' | 'mcp') || 'agent',
+          data: { config: serializeNodeData(node.data) },
+          position: node.position,
+        })),
         edges: storeEdges.map(edge => ({
           id: edge.id,
           source: edge.source,
