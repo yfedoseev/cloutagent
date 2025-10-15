@@ -221,3 +221,47 @@ export interface JSONRPCNotification {
   method: string;
   params?: Record<string, unknown>;
 }
+
+// ============================================================================
+// Agent SDK Types (for query() function integration)
+// ============================================================================
+
+import type { Query } from '@anthropic-ai/claude-agent-sdk';
+
+// Session info for tracking active agent sessions
+export interface SessionInfo {
+  sessionId: string;
+  query: Query;
+  createdAt: Date;
+  lastActivity: Date;
+  config: CloutAgentConfig;
+}
+
+// Config that maps to Agent SDK Options
+export interface CloutAgentConfig {
+  id: string;
+  name: string;
+  model: 'sonnet' | 'opus' | 'haiku';
+  systemPrompt?: string;
+  temperature?: number;
+  maxTokens?: number;
+  maxTurns?: number;
+  mcpServers?: Record<
+    string,
+    {
+      command: string;
+      args?: string[];
+      env?: Record<string, string>;
+    }
+  >;
+  allowedTools?: string[];
+  disallowedTools?: string[];
+}
+
+// Execution options with session support
+export interface AgentSDKExecutionOptions {
+  timeout?: number;
+  variables?: Record<string, string>;
+  sessionId?: string; // Resume existing session
+  forkFrom?: string; // Fork from existing session
+}

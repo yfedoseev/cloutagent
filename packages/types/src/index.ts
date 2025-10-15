@@ -332,8 +332,13 @@ export type SSEEventType =
   | 'execution:started'
   | 'execution:progress'
   | 'execution:step'
-  | 'execution:output'
-  | 'execution:token-usage'
+  | 'execution:output'           // Text chunks
+  | 'execution:thinking'          // Claude's thinking/reasoning
+  | 'execution:tool-call'         // Tool invocation
+  | 'execution:tool-result'       // Tool execution result
+  | 'execution:token-usage'       // Token counts
+  | 'execution:cost-update'       // Incremental cost updates
+  | 'execution:session-created'   // Session initialization
   | 'execution:completed'
   | 'execution:failed'
   | 'execution:paused'
