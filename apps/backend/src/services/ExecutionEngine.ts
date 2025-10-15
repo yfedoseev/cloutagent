@@ -10,6 +10,8 @@ import type {
   HookExecutionContext,
   SubagentExecutionRequest,
   SubagentExecutionResponse,
+  CloutAgentConfig,
+  SSEEvent,
 } from '@cloutagent/types';
 import type { HookExecutionService } from './HookExecutionService';
 import type { VariableService } from './VariableService';
@@ -17,23 +19,7 @@ import type { ExecutionHistoryService } from './ExecutionHistoryService';
 import type { ErrorRecoveryService } from './ErrorRecoveryService';
 import { VariableInterpolationEngine } from './VariableInterpolationEngine';
 import { WorkflowValidationEngine } from './WorkflowValidationEngine';
-
-interface IClaudeSDKService {
-  createAgent(config: Record<string, unknown>): {
-    run(input: string, options?: {
-      onChunk?: (chunk: string) => void;
-      onToolCall?: (toolName: string, toolArgs: unknown) => Promise<void>;
-      onToolResult?: (toolName: string, toolResult: unknown) => Promise<void>;
-    }): Promise<{
-      output: string;
-      usage: {
-        input: number;
-        output: number;
-        total: number;
-      };
-    }>;
-  };
-}
+import { ClaudeAgentSDKService } from './ClaudeAgentSDKService';
 
 interface ISubagentService {
   executeBatch(requests: SubagentExecutionRequest[]): Promise<SubagentExecutionResponse[]>;
@@ -43,9 +29,10 @@ export class ExecutionEngine extends EventEmitter {
   private activeExecutions = new Map<string, Execution>();
   private interpolationEngine = new VariableInterpolationEngine();
   private validationEngine = new WorkflowValidationEngine();
+  private workflowStorage = new Map<string, WorkflowGraph>();
 
   constructor(
-    private claudeSDK: IClaudeSDKService,
+    private claudeAgentSDK: ClaudeAgentSDKService,
     private subagentService: ISubagentService,
     private hookService: HookExecutionService,
     private variableService?: VariableService,
@@ -72,6 +59,7 @@ export class ExecutionEngine extends EventEmitter {
     };
 
     this.activeExecutions.set(execution.id, execution);
+    this.workflowStorage.set(execution.id, workflow);
     this.emit('execution:started', {
       executionId: execution.id,
       projectId: config.projectId,
@@ -206,6 +194,7 @@ export class ExecutionEngine extends EventEmitter {
       return execution;
     } finally {
       this.activeExecutions.delete(execution.id);
+      this.workflowStorage.delete(execution.id);
     }
   }
 
@@ -265,44 +254,102 @@ export class ExecutionEngine extends EventEmitter {
     });
 
     try {
-      // Create agent and run
-      const agent = this.claudeSDK.createAgent(node.data.config);
+      // Convert node config to CloutAgentConfig
+      const agentConfig: CloutAgentConfig = {
+        id: node.id,
+        name: node.data.config.name || 'Agent',
+        model: this.mapModelName(node.data.config.model),
+        systemPrompt: node.data.config.systemPrompt,
+        temperature: node.data.config.temperature,
+        maxTokens: node.data.config.maxTokens,
+        maxTurns: node.data.config.maxTurns || 10,
+      };
 
-      const result = await agent.run(config.input, {
-        onChunk: (chunk: string) => {
-          this.emit('execution:output', {
-            executionId: execution.id,
-            chunk,
-            complete: false,
-          });
-        },
-        onToolCall: async (toolName: string, toolArgs: unknown) => {
-          // Execute pre-tool-call hooks
-          const workflow = this.getWorkflowForExecution(execution.id);
-          if (workflow) {
-            await this.executeHooks(workflow, 'pre-tool-call', execution, {
-              toolName,
-              toolArgs,
-            });
-          }
-        },
-        onToolResult: async (toolName: string, toolResult: unknown) => {
-          // Execute post-tool-call hooks
-          const workflow = this.getWorkflowForExecution(execution.id);
-          if (workflow) {
-            await this.executeHooks(workflow, 'post-tool-call', execution, {
-              toolName,
-              toolResult,
-            });
-          }
-        },
-      });
+      let fullOutput = '';
 
-      // Update token usage
-      execution.tokenUsage.input += result.usage.input;
-      execution.tokenUsage.output += result.usage.output;
-      execution.tokenUsage.total += result.usage.total;
-      execution.costUSD = this.calculateCost(execution.tokenUsage);
+      // Event handler for streaming
+      const onEvent = async (event: SSEEvent) => {
+        switch (event.type) {
+          case 'execution:output': {
+            // Stream output chunks
+            fullOutput += event.data.chunk;
+            this.emit('execution:output', {
+              executionId: execution.id,
+              chunk: event.data.chunk,
+              complete: false,
+            });
+            break;
+          }
+
+          case 'execution:thinking': {
+            // Emit thinking events
+            this.emit('execution:thinking', {
+              executionId: execution.id,
+              status: event.data.status,
+            });
+            break;
+          }
+
+          case 'execution:tool-call': {
+            // Execute pre-tool-call hooks
+            const workflow = this.getWorkflowForExecution(execution.id);
+            if (workflow) {
+              await this.executeHooks(workflow, 'pre-tool-call', execution, {
+                toolName: event.data.toolName,
+                toolArgs: event.data.toolArgs,
+              });
+            }
+            this.emit('execution:tool-call', {
+              executionId: execution.id,
+              toolName: event.data.toolName,
+              toolId: event.data.toolId,
+              toolArgs: event.data.toolArgs,
+            });
+            break;
+          }
+
+          case 'execution:tool-result': {
+            // Execute post-tool-call hooks
+            const wf = this.getWorkflowForExecution(execution.id);
+            if (wf) {
+              await this.executeHooks(wf, 'post-tool-call', execution, {
+                toolId: event.data.toolId,
+                toolResult: event.data.result,
+              });
+            }
+            this.emit('execution:tool-result', {
+              executionId: execution.id,
+              toolId: event.data.toolId,
+              result: event.data.result,
+              isError: event.data.isError,
+            });
+            break;
+          }
+
+          case 'execution:cost-update': {
+            // Emit cost updates
+            this.emit('execution:cost-update', {
+              executionId: execution.id,
+              totalCostUSD: event.data.totalCostUSD,
+              modelUsage: event.data.modelUsage,
+            });
+            break;
+          }
+        }
+      };
+
+      // Execute with Agent SDK
+      const result = await this.claudeAgentSDK.streamExecution(
+        agentConfig,
+        config.input,
+        onEvent,
+      );
+
+      // Update execution with results
+      execution.tokenUsage.input += result.cost.promptTokens;
+      execution.tokenUsage.output += result.cost.completionTokens;
+      execution.tokenUsage.total += result.cost.promptTokens + result.cost.completionTokens;
+      execution.costUSD += result.cost.totalCost;
 
       this.emit('execution:token-usage', {
         executionId: execution.id,
@@ -316,10 +363,20 @@ export class ExecutionEngine extends EventEmitter {
       step.status = 'completed';
       step.completedAt = new Date();
       step.duration = step.completedAt.getTime() - step.startedAt.getTime();
-      step.output = result.output;
-      step.tokenUsage = result.usage;
+      step.output = result.result || fullOutput;
+      step.tokenUsage = {
+        input: result.cost.promptTokens,
+        output: result.cost.completionTokens,
+      };
 
-      return { output: result.output, tokenUsage: result.usage };
+      return {
+        output: result.result || fullOutput,
+        tokenUsage: {
+          input: result.cost.promptTokens,
+          output: result.cost.completionTokens,
+          total: result.cost.promptTokens + result.cost.completionTokens,
+        },
+      };
     } catch (error: unknown) {
       step.status = 'failed';
       step.error = error instanceof Error ? error.message : String(error);
@@ -328,11 +385,16 @@ export class ExecutionEngine extends EventEmitter {
     }
   }
 
-  // Helper to get workflow for execution (simplified - in real implementation would be stored)
-  private getWorkflowForExecution(_executionId: string): WorkflowGraph | null {
-    // In production, this would retrieve the workflow from storage
-    // For now, return null as it's not critical for the integration
-    return null;
+  private mapModelName(model: string): 'sonnet' | 'opus' | 'haiku' {
+    // Map old model names to new simplified names
+    if (model.includes('opus')) return 'opus';
+    if (model.includes('haiku')) return 'haiku';
+    return 'sonnet'; // Default to sonnet
+  }
+
+  // Helper to get workflow for execution
+  private getWorkflowForExecution(executionId: string): WorkflowGraph | null {
+    return this.workflowStorage.get(executionId) || null;
   }
 
   private async executeSubagents(
@@ -362,8 +424,7 @@ export class ExecutionEngine extends EventEmitter {
         result.tokenUsage.input + result.tokenUsage.output;
     });
 
-    // Update cost after adding all subagent tokens
-    execution.costUSD = this.calculateCost(execution.tokenUsage);
+    // Note: Cost is tracked by Agent SDK, subagent costs would need separate tracking
   }
 
   private async executeHooks(
@@ -420,17 +481,6 @@ export class ExecutionEngine extends EventEmitter {
   private isRetryable(error: Error): boolean {
     const retryableErrors = ['TIMEOUT', 'RATE_LIMIT', 'SERVICE_UNAVAILABLE'];
     return retryableErrors.some(code => error.message.includes(code));
-  }
-
-  private calculateCost(usage: { input: number; output: number }): number {
-    // Claude Sonnet 4.5 pricing
-    const INPUT_COST_PER_1M = 3.0;
-    const OUTPUT_COST_PER_1M = 15.0;
-
-    const inputCost = (usage.input / 1_000_000) * INPUT_COST_PER_1M;
-    const outputCost = (usage.output / 1_000_000) * OUTPUT_COST_PER_1M;
-
-    return inputCost + outputCost;
   }
 
   private generateExecutionId(): string {
