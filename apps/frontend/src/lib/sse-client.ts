@@ -156,7 +156,12 @@ export interface SSEConnectionCallbacks {
   onProgress?: (data: any) => void;
   onStep?: (data: any) => void;
   onOutput?: (data: any) => void;
+  onThinking?: (data: any) => void; // NEW: Claude's reasoning/thinking blocks
+  onToolCall?: (data: any) => void; // NEW: Tool invocations
+  onToolResult?: (data: any) => void; // NEW: Tool results
   onTokenUsage?: (data: any) => void;
+  onCostUpdate?: (data: any) => void; // NEW: Real-time cost updates
+  onSessionCreated?: (data: any) => void; // NEW: Session initialization
   onCompleted?: (data: any) => void;
   onFailed?: (data: any) => void;
   onPaused?: (data: any) => void;

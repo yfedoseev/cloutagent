@@ -8,7 +8,7 @@ import { WorkflowService } from './services/WorkflowService';
 import { SSEService } from './services/SSEService';
 import { HookExecutionService } from './services/HookExecutionService';
 import { SubagentService } from './services/SubagentService';
-import { ClaudeSDKService } from './services/ClaudeSDKService';
+import { ClaudeAgentSDKService } from './services/ClaudeAgentSDKService';
 import { ExecutionEngine } from './services/ExecutionEngine';
 import { ExecutionHistoryService } from './services/ExecutionHistoryService';
 import { ErrorRecoveryService } from './services/ErrorRecoveryService';
@@ -55,8 +55,8 @@ const hookExecutionService = new HookExecutionService();
 const executionHistoryService = new ExecutionHistoryService();
 const errorRecoveryService = new ErrorRecoveryService();
 
-// Initialize Claude SDK Service
-const claudeSDKService = new ClaudeSDKService();
+// Initialize Claude Agent SDK Service
+const claudeAgentSDKService = new ClaudeAgentSDKService();
 
 // Mock cost tracker for SubagentService (to be replaced with real implementation)
 const mockCostTracker = {
@@ -65,11 +65,13 @@ const mockCostTracker = {
   },
 };
 
-const subagentService = new SubagentService(claudeSDKService, mockCostTracker);
+// Note: SubagentService still uses old ClaudeSDKService - needs migration
+// For now, we keep it as is since it's not the main execution path
+const subagentService = new SubagentService(claudeAgentSDKService as any, mockCostTracker);
 
 // Initialize execution engine with all dependencies
 const executionEngine = new ExecutionEngine(
-  claudeSDKService,
+  claudeAgentSDKService,
   subagentService,
   hookExecutionService,
   variableService,
