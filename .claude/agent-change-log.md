@@ -1535,3 +1535,173 @@ import { ThemeToggle } from './components/ThemeToggle';
 - Safe for production deployment after QA verification
 
 ---
+
+## [2025-10-14 18:10] Backend Engineer 2 - MCP Protocol Client Implementation
+
+**Task**: Task 1.3 - MCP Protocol Client with Stdio Transport
+**Implementation Plan**: /home/yfedoseev/projects/cloutagent/docs/CLAUDE_SDK_MCP_IMPLEMENTATION_PLAN.md
+
+### Files Created
+
+1. **packages/types/src/claude-sdk.ts** (NEW)
+   - Complete MCP protocol type definitions
+   - Agent configuration types (AgentConfig, ClaudeModel, Agent)
+   - Execution types (ExecutionOptions, SDKExecutionResult, ToolCallResult)
+   - Streaming types (StreamChunk, ToolCall)
+   - MCP protocol types (MCPServerConfig, MCPConnection, MCPTool, MCPToolProperty)
+   - Interface definitions (IMCPClient, IMCPClientPool)
+   - Error classes (ClaudeSDKError, MCPError)
+   - JSON-RPC 2.0 types (JSONRPCRequest, JSONRPCResponse, JSONRPCNotification)
+
+2. **apps/backend/src/services/mcp/MCPClient.ts** (NEW)
+   - Full MCP client implementation with stdio transport
+   - JSON-RPC 2.0 protocol handling
+   - Child process management (spawn, kill, cleanup)
+   - Connection lifecycle (connect, disconnect, status tracking)
+   - Tool discovery (`tools/list` method)
+   - Tool execution (`tools/call` method with timing)
+   - Health checks (`ping` method)
+   - Request timeout handling (30-second timeout)
+   - Buffered response parsing (handles multi-line JSON-RPC responses)
+   - Pending request tracking with promise resolution
+   - Process exit handling and error recovery
+
+3. **apps/backend/src/services/mcp/__tests__/MCPClient.test.ts** (NEW)
+   - Comprehensive unit tests with mocked child processes
+   - Connection management tests
+   - Tool discovery tests
+   - Tool execution tests (success and failure)
+   - Health check tests
+   - Process crash handling tests
+   - Timeout handling tests
+   - JSON-RPC protocol tests
+   - Multi-response parsing tests
+
+4. **apps/backend/src/services/mcp/__tests__/MCPClient.integration.test.ts** (NEW)
+   - Integration tests with real @modelcontextprotocol/server-filesystem
+   - Real MCP server connection tests
+   - Tool discovery verification
+   - Tool execution with real filesystem operations
+   - Error handling with nonexistent files
+   - Health check validation
+   - Clean disconnect tests
+   - Sequential tool call tests
+
+5. **apps/backend/src/services/mcp/test-manual.ts** (NEW)
+   - Manual test script for quick validation
+   - Creates temp directory and test file
+   - Tests all MCPClient methods sequentially
+   - Provides detailed console output
+   - Automatic cleanup
+
+### Files Modified
+
+1. **packages/types/src/index.ts**
+   - Added export for claude-sdk types: `export * from './claude-sdk';`
+
+### Implementation Details
+
+**MCPClient Architecture**:
+- Uses Node.js `child_process.spawn()` for stdio transport
+- Implements JSON-RPC 2.0 protocol per MCP specification
+- Maintains pending request map for async request/response matching
+- Increments message IDs for each request
+- Buffers stdout to handle partial JSON responses
+- Sets 30-second timeout for each request
+- Properly cleans up resources on disconnect
+
+**Key Features**:
+1. **Initialization Handshake**: Sends `initialize` request with protocol version, client info, and capabilities
+2. **Tool Discovery**: Requests tool list via `tools/list` RPC method
+3. **Tool Execution**: Executes tools via `tools/call` with timing measurement
+4. **Health Checks**: Pings server to verify responsiveness
+5. **Error Handling**: Catches JSON-RPC errors and process crashes gracefully
+6. **Timeout Management**: Rejects requests after 30 seconds with clear error
+7. **Process Lifecycle**: Handles process exit events and cleans up pending requests
+
+**MCP Protocol Compliance**:
+- ✅ JSON-RPC 2.0 format
+- ✅ Initialize handshake with capabilities
+- ✅ Tool discovery (tools/list)
+- ✅ Tool execution (tools/call)
+- ✅ Health checks (ping)
+- ✅ Error responses with proper structure
+- ✅ Stdio transport with newline-delimited JSON
+
+### Test Results
+
+**Manual Test Output**:
+```
+Test 1: Connection ✓ (connected status)
+Test 2: Tool Discovery ✓ (14 tools found)
+  - read_file, read_text_file, read_media_file
+  - read_multiple_files, write_file, edit_file
+  - create_directory, list_directory
+  - list_directory_with_sizes, directory_tree
+  - move_file, search_files, get_file_info
+  - list_allowed_directories
+Test 3: Tool Execution ✓ (read_file succeeded in 3ms)
+Test 4: Error Handling ✓ (graceful error handling)
+Test 5: Health Check ✓ (ping successful)
+Test 6: Disconnect ✓ (clean shutdown)
+```
+
+### Acceptance Criteria Status
+
+- ✅ MCP client spawns server process correctly
+- ✅ JSON-RPC 2.0 messages sent and received correctly
+- ✅ Initialization handshake completes successfully
+- ✅ Tool discovery returns valid tool list
+- ✅ Tool execution works with correct input/output
+- ✅ Process crashes handled gracefully
+- ✅ Timeout handling for hung processes
+- ✅ Unit tests with mock process
+- ✅ Integration tests with real MCP server (filesystem)
+
+### Technical Notes
+
+**Critical Fix**: Added `capabilities: {}` to initialize request params
+- MCP server requires capabilities field in initialize params
+- Initially missing, causing schema validation error
+- Fixed by adding empty capabilities object
+
+**Buffer Management**:
+- Stdout data may arrive in chunks
+- Buffer accumulates data until newline found
+- Handles multi-line responses correctly
+- Prevents partial JSON parsing errors
+
+**Resource Cleanup**:
+- Disconnect kills process with SIGTERM
+- All pending requests rejected on disconnect
+- Timeouts cleared properly
+- No memory leaks or hanging processes
+
+### Dependencies
+
+**NPM Packages Used**:
+- `child_process` (Node.js built-in)
+- `@cloutagent/types` (internal package)
+
+**External MCP Server Used for Testing**:
+- `@modelcontextprotocol/server-filesystem` (via npx)
+
+### Integration Points
+
+**Ready for Integration**:
+- Backend Engineer 1 can use IMCPClient interface
+- Type definitions available from @cloutagent/types
+- MCPClient can be instantiated with MCPServerConfig
+- Ready for Task 1.4 (MCP Client Pool implementation)
+- Ready for Task 1.5 (integration with ClaudeSDKService)
+
+### Next Steps
+
+1. Run `make quick-check` for linting and formatting
+2. Commit changes with detailed message
+3. Coordinate with Backend Engineer 1 on Task 1.5 integration needs
+4. Begin Task 1.4 (MCP Client Pool) when ready
+
+**Status**: Implementation complete, manual testing successful, ready for quality checks and commit.
+
+---

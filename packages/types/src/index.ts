@@ -385,3 +385,4 @@ export * from './auth';
 export * from './cost';
 export * from './env';
 export * from './variables';
+export * from './claude-sdk';
