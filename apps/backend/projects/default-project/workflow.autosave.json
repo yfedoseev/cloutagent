@@ -1,25 +1,22 @@
 {
   "nodes": [
     {
-      "id": "agent-1759442796936",
+      "id": "agent-1760504607655",
       "type": "agent",
       "data": {
         "config": {
           "config": {
-            "id": "agent-1759442796936",
             "name": "Claude Agent",
             "model": "claude-sonnet-4-5",
-            "systemPrompt": "",
+            "systemPrompt": "You are a helpful AI assistant.",
             "temperature": 1,
-            "maxTokens": 4096,
-            "enabledTools": [],
-            "label": "New agent"
+            "maxTokens": 4096
           }
         }
       },
       "position": {
-        "x": 324.26757463205814,
-        "y": 324.26757463205814
+        "x": 283.2596344562877,
+        "y": 283.2596344562877
       }
     }
   ],

@@ -66,10 +66,10 @@ export class SSEService {
   private setupEngineListeners(): void {
     // Execution started
     this.executionEngine.on('execution:started', (data) => {
-      this.broadcast(data.execution.id, {
+      this.broadcast(data.executionId, {
         type: 'execution:started',
         timestamp: new Date(),
-        executionId: data.execution.id,
+        executionId: data.executionId,
         data,
       });
     });
@@ -112,20 +112,20 @@ export class SSEService {
 
     // Execution completed
     this.executionEngine.on('execution:completed', (data) => {
-      this.broadcast(data.execution.id, {
+      this.broadcast(data.executionId, {
         type: 'execution:completed',
         timestamp: new Date(),
-        executionId: data.execution.id,
+        executionId: data.executionId,
         data,
       });
     });
 
     // Execution failed
     this.executionEngine.on('execution:failed', (data) => {
-      this.broadcast(data.execution.id, {
+      this.broadcast(data.executionId, {
         type: 'execution:failed',
         timestamp: new Date(),
-        executionId: data.execution.id,
+        executionId: data.executionId,
         data,
       });
     });

@@ -1,0 +1,18 @@
+{
+  "id": "exec-1760504566569-y49gl3ayg",
+  "projectId": "test-project",
+  "status": "failed",
+  "input": "Test workflow",
+  "startedAt": "2025-10-15T05:02:46.569Z",
+  "tokenUsage": {
+    "input": 0,
+    "output": 0,
+    "total": 0
+  },
+  "costUSD": 0,
+  "steps": [],
+  "retryCount": 0,
+  "error": "Workflow validation failed: Workflow must have at least one node; Workflow must have exactly one agent node",
+  "completedAt": "2025-10-15T05:02:46.569Z",
+  "duration": 0
+}

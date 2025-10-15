@@ -1,0 +1,13 @@
+{
+  "executionId": "exec-1760504566569-y49gl3ayg",
+  "projectId": "test-project",
+  "timestamp": "2025-10-15T05:02:46.569Z",
+  "completedSteps": [],
+  "tokenUsageSnapshot": {
+    "input": 0,
+    "output": 0,
+    "total": 0
+  },
+  "error": "Workflow validation failed: Workflow must have at least one node; Workflow must have exactly one agent node",
+  "retryCount": 0
+}
