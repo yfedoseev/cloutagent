@@ -65,9 +65,8 @@ const mockCostTracker = {
   },
 };
 
-// Note: SubagentService still uses old ClaudeSDKService - needs migration
-// For now, we keep it as is since it's not the main execution path
-const subagentService = new SubagentService(claudeAgentSDKService as any, mockCostTracker);
+// Initialize SubagentService with ClaudeAgentSDKService
+const subagentService = new SubagentService(claudeAgentSDKService, mockCostTracker);
 
 // Initialize execution engine with all dependencies
 const executionEngine = new ExecutionEngine(

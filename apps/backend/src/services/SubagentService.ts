@@ -5,11 +5,9 @@ import type {
   SubagentExecutionRequest,
   SubagentExecutionResponse,
   SubagentConfig,
+  CloutAgentConfig,
 } from '@cloutagent/types';
-
-interface ClaudeSDKService {
-  createAgent: (config: any) => any;
-}
+import { ClaudeAgentSDKService } from './ClaudeAgentSDKService';
 
 interface CostTracker {
   trackSubagent: (data: {
@@ -43,7 +41,7 @@ export class SubagentService {
   };
 
   constructor(
-    private sdkService: ClaudeSDKService,
+    private agentSDK: ClaudeAgentSDKService,
     private costTracker: CostTracker,
   ) {}
 
@@ -53,32 +51,45 @@ export class SubagentService {
     const startTime = Date.now();
 
     try {
-      // Create specialized agent instance
-      const agent = this.sdkService.createAgent({
-        subagentType: request.type,
+      // Build agent config for Claude Agent SDK
+      const agentConfig: CloutAgentConfig = {
+        id: request.subagentId,
+        name: request.type || 'general-purpose',
+        model: 'sonnet', // Subagents use Sonnet by default
         systemPrompt: this.buildSystemPrompt(request),
-      });
+        maxTokens: 4000,
+        maxTurns: 5,
+      };
 
-      // Execute with timeout
+      // Execute with Agent SDK
       const result = await this.executeWithTimeout(
-        agent.run(request.prompt, request.context),
+        this.agentSDK.streamExecution(
+          agentConfig,
+          request.prompt,
+          () => {}, // No event streaming for subagents
+        ),
         request.timeout || this.DEFAULT_TIMEOUT,
       );
 
       const executionTime = Date.now() - startTime;
 
+      const tokenUsage = {
+        input: result.cost.promptTokens,
+        output: result.cost.completionTokens,
+      };
+
       // Track costs
       await this.costTracker.trackSubagent({
         subagentId: request.subagentId,
-        tokenUsage: result.usage,
+        tokenUsage,
         executionTime,
       });
 
       return {
         subagentId: request.subagentId,
-        result: result.output,
+        result: result.result || '',
         executionTime,
-        tokenUsage: result.usage,
+        tokenUsage,
         status: 'completed',
       };
     } catch (error: any) {
