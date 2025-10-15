@@ -147,16 +147,24 @@ export interface IMCPClient {
 // ============================================================================
 
 export interface IMCPClientPool {
-  addServer(config: MCPServerConfig): Promise<MCPConnection>;
-  removeServer(serverId: string): Promise<void>;
-  getAllTools(): Promise<MCPTool[]>;
+  initialize(servers: MCPServerConfig[]): Promise<void>;
+  shutdown(): Promise<void>;
+  discoverAllTools(): Promise<MCPTool[]>;
   executeTool(
     toolName: string,
     args: Record<string, unknown>,
   ): Promise<ToolCallResult>;
-  getConnections(): Promise<MCPConnection[]>;
-  getClient(serverId: string): IMCPClient | undefined;
-  healthCheck(): Promise<Record<string, boolean>>;
+  getServerStatus(): Map<string, 'connected' | 'disconnected' | 'error'>;
+  reconnect(serverId: string): Promise<void>;
+}
+
+export interface PooledMCPClient {
+  serverId: string;
+  serverName: string;
+  client: IMCPClient;
+  tools: MCPTool[];
+  status: 'connected' | 'disconnected' | 'error';
+  lastError?: string;
 }
 
 // ============================================================================

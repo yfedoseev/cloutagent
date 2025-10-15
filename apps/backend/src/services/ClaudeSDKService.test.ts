@@ -184,12 +184,16 @@ describe('ClaudeSDKService', () => {
     it('should stream execution with chunks', async () => {
       const agent = await service.createAgent(mockAgentConfig);
       const chunks: string[] = [];
-      const onChunk = (chunk: string) => chunks.push(chunk);
+      const onEvent = (event: any) => {
+        if (event.type === 'execution:output') {
+          chunks.push(event.data.chunk);
+        }
+      };
 
       const result = await service.streamExecution(
         agent,
         'Tell me a story',
-        onChunk,
+        onEvent,
       );
 
       expect(result.status).toBe('completed');
@@ -199,18 +203,18 @@ describe('ClaudeSDKService', () => {
 
     it('should handle streaming errors', async () => {
       const agent = await service.createAgent(mockAgentConfig);
-      const chunks: string[] = [];
-      const onChunk = (chunk: string) => chunks.push(chunk);
+      const events: any[] = [];
+      const onEvent = (event: any) => events.push(event);
 
       // Mock SDK to throw error during streaming
-      vi.spyOn(service as any, 'streamWithSDK').mockRejectedValueOnce(
+      vi.spyOn(service as any, 'streamWithSSE').mockRejectedValueOnce(
         new Error('Streaming failed'),
       );
 
       const result = await service.streamExecution(
         agent,
         'test input',
-        onChunk,
+        onEvent,
       );
 
       expect(result.status).toBe('failed');

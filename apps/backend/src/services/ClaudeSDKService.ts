@@ -3,6 +3,7 @@ import type {
   Agent,
   ExecutionOptions,
   SDKExecutionResult,
+  SSEEvent,
 } from '@cloutagent/types';
 import { v4 as uuidv4 } from 'uuid';
 import Anthropic from '@anthropic-ai/sdk';
@@ -142,24 +143,32 @@ export class ClaudeSDKService {
   }
 
   /**
-   * Stream execution with real-time chunk callbacks
+   * Stream execution with SSE event emission and real-time token tracking
    *
    * @param agent - The agent to execute
    * @param input - The input prompt/message
-   * @param onChunk - Callback function called for each streamed chunk
+   * @param onEvent - Callback function called for each SSE event
    * @param options - Execution options
    * @returns Execution result after streaming completes
    */
   async streamExecution(
     agent: Agent,
     input: string,
-    onChunk: (chunk: string) => void,
+    onEvent: (event: SSEEvent) => void,
     options: ExecutionOptions = {},
   ): Promise<SDKExecutionResult> {
     const executionId = uuidv4();
     const startTime = Date.now();
 
     try {
+      // Emit execution:started event
+      onEvent({
+        type: 'execution:started',
+        timestamp: new Date(),
+        executionId,
+        data: { agentId: agent.id },
+      });
+
       // Apply variable substitution if provided
       let processedSystemPrompt = agent.config.systemPrompt;
       if (options.variables) {
@@ -172,19 +181,42 @@ export class ClaudeSDKService {
       const timeout = options.timeout || 120000;
       const maxTokens = options.maxTokens || agent.config.maxTokens;
 
+      // Execute streaming with event emission
       const result = await this.executeWithTimeout(
         () =>
-          this.streamWithSDK(
+          this.streamWithSSE(
             agent,
             input,
             processedSystemPrompt,
             maxTokens,
-            onChunk,
+            executionId,
+            onEvent,
           ),
         timeout,
       );
 
       const duration = Date.now() - startTime;
+      const totalCost = this.calculateCost(
+        agent.config.model,
+        result.promptTokens,
+        result.completionTokens,
+      );
+
+      // Emit execution:completed event
+      onEvent({
+        type: 'execution:completed',
+        timestamp: new Date(),
+        executionId,
+        data: {
+          result: result.output,
+          cost: {
+            promptTokens: result.promptTokens,
+            completionTokens: result.completionTokens,
+            totalCost,
+          },
+          duration,
+        },
+      });
 
       return {
         id: executionId,
@@ -193,11 +225,7 @@ export class ClaudeSDKService {
         cost: {
           promptTokens: result.promptTokens,
           completionTokens: result.completionTokens,
-          totalCost: this.calculateCost(
-            agent.config.model,
-            result.promptTokens,
-            result.completionTokens,
-          ),
+          totalCost,
         },
         duration,
       };
@@ -273,17 +301,18 @@ export class ClaudeSDKService {
   }
 
   /**
-   * Stream with Anthropic SDK
-   * Streams responses in real-time with token tracking
+   * Stream with Anthropic SDK and emit SSE events
+   * Streams responses in real-time with token tracking and event emission
    *
    * @private
    */
-  private async streamWithSDK(
+  private async streamWithSSE(
     agent: Agent,
     input: string,
     systemPrompt: string,
     maxTokens: number,
-    onChunk: (chunk: string) => void,
+    executionId: string,
+    onEvent: (event: SSEEvent) => void,
   ): Promise<{
     output: string;
     promptTokens: number;
@@ -310,16 +339,39 @@ export class ClaudeSDKService {
       temperature: agent.config.temperature,
     });
 
-    // Listen for text chunks
+    // Listen for text chunks and emit execution:output events
     stream.on('text', (text) => {
       fullOutput += text;
-      onChunk(text);
+
+      // Emit execution:output event for each chunk
+      onEvent({
+        type: 'execution:output',
+        timestamp: new Date(),
+        executionId,
+        data: { chunk: text },
+      });
     });
 
     // Listen for message completion to get usage stats
     stream.on('message', (message) => {
       inputTokens = message.usage.input_tokens;
       outputTokens = message.usage.output_tokens;
+
+      // Emit execution:token-usage event with real-time token tracking
+      onEvent({
+        type: 'execution:token-usage',
+        timestamp: new Date(),
+        executionId,
+        data: {
+          promptTokens: inputTokens,
+          completionTokens: outputTokens,
+          estimatedCost: this.calculateCost(
+            agent.config.model,
+            inputTokens,
+            outputTokens,
+          ),
+        },
+      });
     });
 
     // Wait for stream to complete
