@@ -21,14 +21,10 @@ import { v4 as uuidv4 } from 'uuid';
  * - Session management
  */
 export class ClaudeAgentSDKService {
-  private apiKey: string;
   private activeSessions: Map<string, SessionInfo> = new Map();
 
   constructor() {
-    this.apiKey = process.env.ANTHROPIC_API_KEY || '';
-    if (!this.apiKey) {
-      throw new Error('ANTHROPIC_API_KEY environment variable is required');
-    }
+    // API key is managed automatically by Claude Agent SDK
   }
 
   /**
@@ -63,7 +59,7 @@ export class ClaudeAgentSDKService {
         includePartialMessages: true, // CRITICAL for real-time streaming
         resume: options.sessionId,
         forkSession: options.forkFrom,
-        apiKey: this.apiKey,
+        // API key managed automatically by Claude Agent SDK from ANTHROPIC_API_KEY env var
       };
 
       // Emit started event
