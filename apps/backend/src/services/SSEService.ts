@@ -1,12 +1,27 @@
 import { Response } from 'express';
-import { SSEEvent, SSEEventType } from '@cloutagent/types';
+import { SSEEvent, SSEEventType, WorkflowGraph } from '@cloutagent/types';
 import { EventEmitter } from 'events';
+import { ExecutionEngine } from './ExecutionEngine';
 
 export class SSEService {
   private clients = new Map<string, Set<Response>>();
 
-  constructor(private executionEngine: EventEmitter) {
+  constructor(private executionEngine: ExecutionEngine) {
     this.setupEngineListeners();
+  }
+
+  async startExecution(projectId: string, input: string, workflow: WorkflowGraph): Promise<string> {
+    // Start execution via ExecutionEngine
+    const execution = await this.executionEngine.execute(
+      {
+        projectId,
+        input,
+        options: { saveHistory: true },
+      },
+      workflow,
+    );
+
+    return execution.id;
   }
 
   subscribe(executionId: string, res: Response): void {
